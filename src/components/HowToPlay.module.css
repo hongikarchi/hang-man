@@ -1,0 +1,147 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(31, 41, 51, 0.45);
+  backdrop-filter: blur(2px);
+  animation: fade 0.2s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 440px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  padding: 28px 24px;
+  animation: rise 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text);
+}
+
+/* 핵심 예시 */
+.example {
+  margin: 20px 0 8px;
+  padding: 18px 12px 14px;
+  background: var(--bg-elev-2);
+  border-radius: var(--r-md);
+  text-align: center;
+}
+
+.exRow {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.slot {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+}
+
+.slotLetter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 46px;
+  font-size: 22px;
+  font-weight: 800;
+  border-radius: var(--r-sm);
+  background: var(--correct-bg);
+  color: var(--correct);
+  border: 1.5px solid var(--correct);
+}
+
+.slotNum {
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.exCaption {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.exCaption b {
+  color: var(--accent);
+}
+
+/* 단계 */
+.steps {
+  list-style: none;
+  margin: 18px 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.stepNum {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.cta {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  transition: filter 0.12s ease, transform 0.12s ease;
+}
+.cta:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .sheet { animation: none; }
+}

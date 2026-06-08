@@ -1,0 +1,98 @@
+/* =========================================================================
+   Quote Hangman — global styles, design tokens, reset
+   모바일 우선(375px) 기준. 데스크톱은 @media (min-width:600px)로 확장.
+   ========================================================================= */
+
+:root {
+  /* ---- palette (light, clean, minimal — Wordle/cryptogram feel) ---- */
+  --bg:            #f7f8fa;   /* page background, soft off-white */
+  --bg-elev:       #ffffff;   /* cards / panels / tray */
+  --bg-elev-2:     #f1f3f5;   /* subtle raised fill (slot, chip) */
+  --surface:       #e2e6ea;   /* borders / dividers / empty slot line */
+  --text:          #1f2933;   /* near-black ink */
+  --text-dim:      #5b6470;   /* secondary text (AA on white & slot bg) */
+  --text-faint:    #6b7480;   /* tertiary (AA on white) */
+
+  --accent:        #4f46e5;   /* indigo-600 — selection / interactive */
+  --accent-strong: #4338ca;   /* indigo-700 */
+  --accent-soft:   #eef0fe;   /* indigo wash (selected/droppable bg) */
+  --correct:       #15a34a;   /* green-600 */
+  --correct-bg:    #e7f6ec;   /* green wash */
+  --wrong:         #dc2626;   /* red-600 */
+  --wrong-bg:      #fdecec;   /* red wash */
+  --cipher:        #565e6b;   /* hint number — muted but AA on slot bg */
+
+  /* ---- spacing / radius ---- */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --tap: 44px;            /* minimum tap target */
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-lift: 0 8px 24px rgba(16, 24, 40, 0.12);
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* iOS: avoid rubber-band over the fixed tray; allow vertical scroll only */
+  overscroll-behavior-y: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  /* kill 300ms tap delay + double-tap zoom on iOS Safari (ignores user-scalable) */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* respect reduced motion globally; per-component anims also guard this */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+
+# local env / editor
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# vite temp scaffold (fallback 방식 사용 시)
+.vite-tmp/
+
+# e2e 스크린샷 (반복 진행 확인용, 커밋 불필요)
+.shots/
+
+# Claude Code 세션 메타데이터
+.claude/

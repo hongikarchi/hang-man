@@ -1,0 +1,166 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  height: 100vh; /* fallback */
+  overflow: hidden;
+}
+
+/* ---- 헤더: 뒤로 / 레벨 / 시도 ---- */
+.header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--surface);
+  background: var(--bg-elev);
+}
+
+.backBtn {
+  flex: 0 0 auto;
+  width: var(--tap);
+  height: var(--tap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  border-radius: var(--r-md);
+  background: var(--bg-elev-2);
+  color: var(--text-dim);
+}
+.backBtn:hover { color: var(--text); background: var(--surface); }
+
+/* 레벨 칩 — LevelSelect 태그 색과 일관 */
+.levelBadge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--text-faint);
+}
+.levelBadge[data-level='1'] { background: #0d7a37; }
+.levelBadge[data-level='2'] { background: #946005; }
+.levelBadge[data-level='3'] { background: var(--wrong); }
+
+/* 헤더 가운데 여백 채우기용 스페이서 */
+.headerSpacer {
+  flex: 1;
+}
+
+.helpBtn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  color: var(--text-dim);
+  font-size: 16px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+.helpBtn:hover { color: var(--accent); }
+
+/* ---- 중앙 보드: 스크롤 가능 ---- */
+.board {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+/* ---- 하단 트레이: 고정 ---- */
+.tray {
+  flex: 0 0 auto;
+  padding: 12px 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--surface);
+  background: var(--bg-elev);
+  box-shadow: 0 -2px 12px rgba(16, 24, 40, 0.04);
+}
+
+/* 상시 플레이 안내 (사용자 #1 불만 대응) */
+.instruction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  min-height: 20px;
+}
+.instruction b {
+  color: var(--text);
+  font-weight: 700;
+}
+.instructActive {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.instructActive b {
+  color: var(--accent-strong);
+}
+/* 선택 전: 어디서 시작하는지 살짝 유도 */
+.instructIdle {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+}
+.cue {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent);
+  font-weight: 800;
+  animation: cueBounce 1.4s ease-in-out infinite;
+}
+@keyframes cueBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cue { animation: none; }
+}
+.remain {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  font-weight: 600;
+}
+
+/* 드래그 고스트(DragOverlay) */
+.dragGhost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 54px;
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: var(--bg);
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: var(--shadow-lift);
+  pointer-events: none;
+}
+
+@media (min-width: 600px) {
+  .board { padding: 32px 24px; }
+}

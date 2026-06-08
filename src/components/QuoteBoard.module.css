@@ -1,0 +1,41 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  /* 줄 간격: 암호가 빈칸 아래 있으므로 넉넉히 */
+  row-gap: 14px;
+  column-gap: 0;
+  font-size: clamp(20px, 6.2vw, 30px);
+  max-width: 100%;
+}
+
+/* 한 단어 = 빈칸/구두점 묶음. 줄 사이로 쪼개지지 않게 nowrap. */
+.word {
+  display: inline-flex;
+  align-items: flex-start;
+  white-space: nowrap;
+}
+
+/* 단어 사이 공백 */
+.space {
+  display: inline-block;
+  width: 0.55em;
+}
+
+/* 구두점(. , ' ? ! - : ;) — 그대로 표시 */
+.punct {
+  display: inline-flex;
+  align-items: center;
+  height: 1.9em;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding: 0 1px;
+}
+
+@media (min-width: 600px) {
+  .board {
+    font-size: 30px;
+    row-gap: 16px;
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "quote-hangman",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "English Quote Hangman — 영어 명언을 행맨 방식으로 맞추는 학습 게임 (모바일 우선)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "validate-quotes": "node scripts/validate-quotes.mjs",
+    "test:logic": "node scripts/sanity-logic.mjs",
+    "test:reducer": "node scripts/sanity-reducer.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
+    "verify": "npm run validate-quotes && npm run test:logic && npm run test:reducer && npm run build && npm run test:e2e"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "puppeteer-core": "^23.0.0",
+    "vite": "^5.4.11"
+  }
+}

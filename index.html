@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!--
+      모바일 우선: 초기 줌 1, 확대 차단 시도.
+      주의: iOS Safari는 user-scalable=no 를 무시하므로(iOS 10+),
+      더블탭 줌/탭 지연은 탭 대상 요소의 `touch-action: manipulation` 으로 잡는다.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f7f8fa" />
+    <title>Quote Hangman</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+/* 앱 셸: 모바일 우선. 가운데 정렬된 프레임 안에 화면이 들어간다. */
+.app {
+  min-height: 100dvh;
+  min-height: 100vh; /* fallback */
+  display: flex;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.frame {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  /* 안전영역(노치) 대응 */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 600px) {
+  .frame {
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-card);
+  }
+}
