@@ -1,7 +1,7 @@
 /* 앱 셸: 모바일 우선. 가운데 정렬된 프레임 안에 화면이 들어간다. */
 .app {
-  min-height: 100dvh;
   min-height: 100vh; /* fallback */
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   background: var(--bg);
@@ -12,8 +12,8 @@
   max-width: 720px;
   display: flex;
   flex-direction: column;
-  /* 안전영역(노치) 대응 */
-  padding-bottom: env(safe-area-inset-bottom);
+  /* 하단 안전영역은 각 화면(트레이/래퍼)이 직접 처리 — 여기서 또 주면 이중 적용되어
+     홈 인디케이터 기기에서 트레이가 바닥에서 떠 보인다 */
 }
 
 @media (min-width: 600px) {

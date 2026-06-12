@@ -21,8 +21,11 @@ pnpm-debug.log*
 # vite temp scaffold (fallback 방식 사용 시)
 .vite-tmp/
 
-# e2e 스크린샷 (반복 진행 확인용, 커밋 불필요)
+# e2e/레이아웃 검증 스크린샷 (반복 진행 확인용, 커밋 불필요)
 .shots/
+.verify-shots/
 
 # Claude Code 세션 메타데이터
 .claude/
+
+.vercel

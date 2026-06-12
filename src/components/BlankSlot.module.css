@@ -4,8 +4,9 @@
   align-items: center;
   justify-content: flex-start;
   vertical-align: top;
+  /* 총 폭 1.75em (1.55 + 0.1×2) — QuoteBoard.jsx 의 LETTER_EM 과 동기 유지 */
   width: 1.55em;
-  margin: 0 2px;
+  margin: 0 0.1em;
   /* 모바일: 더블탭 줌/탭지연 제거 */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;

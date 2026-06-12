@@ -12,7 +12,8 @@
     "test:logic": "node scripts/sanity-logic.mjs",
     "test:reducer": "node scripts/sanity-reducer.mjs",
     "test:e2e": "node scripts/e2e.mjs",
-    "verify": "npm run validate-quotes && npm run test:logic && npm run test:reducer && npm run build && npm run test:e2e"
+    "test:layout": "node scripts/verify-layout.mjs",
+    "verify": "npm run validate-quotes && npm run test:logic && npm run test:reducer && npm run build && npm run test:e2e && npm run test:layout"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

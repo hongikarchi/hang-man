@@ -12,6 +12,7 @@ import { useState } from 'react'
 import QuoteBoard from './QuoteBoard.jsx'
 import CardTray from './CardTray.jsx'
 import AttemptsCounter from './AttemptsCounter.jsx'
+import { getCategory } from '../data/categories.js'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen({ game, onHelp }) {
@@ -53,6 +54,7 @@ export default function GameScreen({ game, onHelp }) {
   }
 
   const levelTag = `LV ${level}`
+  const category = getCategory(state.category)
 
   return (
     <DndContext
@@ -68,6 +70,7 @@ export default function GameScreen({ game, onHelp }) {
             ‹
           </button>
           <span className={styles.levelBadge} data-level={level}>{levelTag}</span>
+          {category && <span className={styles.categoryChip}>{category.label}</span>}
           <span className={styles.headerSpacer} />
           <AttemptsCounter
             remaining={state.remainingAttempts}
@@ -79,18 +82,26 @@ export default function GameScreen({ game, onHelp }) {
         </header>
 
         <main className={styles.board}>
-          <QuoteBoard
-            tokens={tokens}
-            selectedLetter={selectedLetter}
-            selectedBlankIndex={selectedBlankIndex}
-            wrongEvent={wrongEvent}
-            draggingLetter={draggingLetter}
-            onTapBlank={(index) => {
-              // 글자가 선택돼 있으면 배치, 아니면 이 빈칸을 선택(빈칸 우선)
-              if (selectedLetter) actions.placeLetter(index, selectedLetter)
-              else actions.selectBlank(index)
-            }}
-          />
+          <div className={styles.boardInner}>
+            {state.quote?.ko && (
+              <div className={styles.koHint} role="note" aria-label="한국어 뜻">
+                <span className={styles.koHintLabel}>뜻</span>
+                <p className={styles.koHintText}>{state.quote.ko}</p>
+              </div>
+            )}
+            <QuoteBoard
+              tokens={tokens}
+              selectedLetter={selectedLetter}
+              selectedBlankIndex={selectedBlankIndex}
+              wrongEvent={wrongEvent}
+              draggingLetter={draggingLetter}
+              onTapBlank={(index) => {
+                // 글자가 선택돼 있으면 배치, 아니면 이 빈칸을 선택(빈칸 우선)
+                if (selectedLetter) actions.placeLetter(index, selectedLetter)
+                else actions.selectBlank(index)
+              }}
+            />
+          </div>
         </main>
 
         <footer className={styles.tray}>

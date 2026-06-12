@@ -4,8 +4,7 @@
    ========================================================================= */
 
 import { useReducer, useMemo, useCallback } from 'react'
-// import attribute(`with { type: 'json' }`)는 Node 22 ESM 과 Vite 양쪽에서 동작.
-import quotes from '../data/quotes.json' with { type: 'json' }
+import { CATEGORIES, DEFAULT_CATEGORY, getCategory } from '../data/categories.js'
 import { buildCipherMap } from '../lib/cipher.js'
 import { tokenize } from '../lib/tokenize.js'
 import {
@@ -31,8 +30,11 @@ function makeInitialState() {
     wrongEvent: null, // { index: number, nonce: number } | null
     wrongNonce: 0, // 단조 증가 카운터
     revealLetters: [], // 미리 공개된 글자들 (난이도)
-    // 레벨별 플레이한 명언 id 집합 (진행 추적). 객체로 보관.
-    playedIds: { 1: new Set(), 2: new Set(), 3: new Set() },
+    category: null, // 선택된 카테고리 id (null = 카테고리 선택 화면)
+    // 카테고리→레벨별 플레이한 문장 id 집합 (진행 추적).
+    playedIds: Object.fromEntries(
+      CATEGORIES.map((c) => [c.id, { 1: new Set(), 2: new Set(), 3: new Set() }]),
+    ),
   }
 }
 
@@ -44,23 +46,30 @@ function makeInitialState() {
  * @param {number} [opts.forceQuoteId] 특정 명언 강제 (테스트/디버그)
  */
 function initRound(state, level, opts = {}) {
-  // playedIds 사본 (불변성)
+  // 카테고리 미선택(헤드리스 테스트 등)이면 기본 카테고리로 동작.
+  const catId = state.category ?? DEFAULT_CATEGORY
+  const pool = getCategory(catId).data
+
+  // playedIds 사본 (불변성) — 활성 카테고리만 깊은 복사
   const playedIds = {
-    1: new Set(state.playedIds[1]),
-    2: new Set(state.playedIds[2]),
-    3: new Set(state.playedIds[3]),
+    ...state.playedIds,
+    [catId]: {
+      1: new Set(state.playedIds[catId][1]),
+      2: new Set(state.playedIds[catId][2]),
+      3: new Set(state.playedIds[catId][3]),
+    },
   }
 
   let quote
   if (opts.forceQuoteId != null) {
-    quote = quotes.find((q) => q.id === opts.forceQuoteId)
-    if (!quote) throw new Error(`명언 id ${opts.forceQuoteId} 없음`)
+    quote = pool.find((q) => q.id === opts.forceQuoteId)
+    if (!quote) throw new Error(`문장 id ${opts.forceQuoteId} 없음 (카테고리 ${catId})`)
   } else {
-    const { quote: picked, resetPlayed } = pickQuote(quotes, level, playedIds[level])
-    if (resetPlayed) playedIds[level] = new Set()
+    const { quote: picked, resetPlayed } = pickQuote(pool, level, playedIds[catId][level])
+    if (resetPlayed) playedIds[catId][level] = new Set()
     quote = picked
   }
-  playedIds[level].add(quote.id)
+  playedIds[catId][level].add(quote.id)
 
   const cipherMap = buildCipherMap(quote.text)
   // 난이도 = 미리 공개 글자 수. L1 약 절반 / L2 약 1/4 / L3 0개.
@@ -71,6 +80,7 @@ function initRound(state, level, opts = {}) {
   return {
     ...state,
     gameState: 'PLAYING',
+    category: catId,
     level,
     quote,
     cipherMap,
@@ -109,7 +119,13 @@ export function reducer(state, action) {
         { forceQuoteId: state.quote.id },
       )
 
-    case 'BACK_TO_LEVELS':
+    case 'SET_CATEGORY': // 카테고리 선택 → 레벨 선택 화면 (INIT 유지)
+      return { ...state, category: action.category }
+
+    case 'BACK_TO_CATEGORIES':
+      return { ...state, gameState: 'INIT', category: null, quote: null, tokens: [] }
+
+    case 'BACK_TO_LEVELS': // 카테고리는 유지 — 같은 카테고리의 레벨 목록으로
       return { ...state, gameState: 'INIT', quote: null, tokens: [] }
 
     case 'SELECT_LETTER': {
@@ -228,7 +244,20 @@ export function useGame() {
   )
 
   // ---- 액션 (안정적 참조) ----
-  const selectLevel = useCallback((level) => dispatch({ type: 'SET_LEVEL', level }), [])
+  const selectCategory = useCallback(
+    (category) => dispatch({ type: 'SET_CATEGORY', category }),
+    [],
+  )
+  const backToCategories = useCallback(() => dispatch({ type: 'BACK_TO_CATEGORIES' }), [])
+  const selectLevel = useCallback((level) => {
+    let opts
+    // DEV 전용: ?quote=<id> 로 특정 문장 강제(레이아웃/E2E 검증용). 프로덕션에서 제거됨.
+    if (import.meta.env.DEV) {
+      const q = Number(new URLSearchParams(window.location.search).get('quote'))
+      if (q) opts = { forceQuoteId: q }
+    }
+    dispatch({ type: 'SET_LEVEL', level, opts })
+  }, [])
   const selectLetter = useCallback((letter) => dispatch({ type: 'SELECT_LETTER', letter }), [])
   const selectBlank = useCallback((blankIndex) => dispatch({ type: 'SELECT_BLANK', blankIndex }), [])
   const placeLetter = useCallback(
@@ -246,6 +275,8 @@ export function useGame() {
     letterProgress,
     remainingBlanks,
     actions: {
+      selectCategory,
+      backToCategories,
       selectLevel,
       selectLetter,
       selectBlank,

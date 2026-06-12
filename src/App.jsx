@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useGame } from './hooks/useGame.js'
+import { getCategory } from './data/categories.js'
+import CategorySelect from './components/CategorySelect.jsx'
 import LevelSelect from './components/LevelSelect.jsx'
 import GameScreen from './components/GameScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
@@ -33,12 +35,20 @@ export default function App() {
   return (
     <div className={styles.app}>
       <div className={styles.frame}>
-        {gameState === 'INIT' && (
-          <LevelSelect
-            onSelectLevel={game.actions.selectLevel}
-            onHelp={() => setShowHowTo(true)}
-          />
-        )}
+        {gameState === 'INIT' &&
+          (game.state.category == null ? (
+            <CategorySelect
+              onSelectCategory={game.actions.selectCategory}
+              onHelp={() => setShowHowTo(true)}
+            />
+          ) : (
+            <LevelSelect
+              category={getCategory(game.state.category)}
+              onSelectLevel={game.actions.selectLevel}
+              onBack={game.actions.backToCategories}
+              onHelp={() => setShowHowTo(true)}
+            />
+          ))}
 
         {gameState === 'PLAYING' && (
           <GameScreen game={game} onHelp={() => setShowHowTo(true)} />

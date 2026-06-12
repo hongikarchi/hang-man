@@ -10,26 +10,6 @@
   min-height: 100dvh;
 }
 
-.backBtn {
-  position: absolute;
-  top: max(16px, env(safe-area-inset-top));
-  left: 16px;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  background: var(--bg-elev);
-  border: 1.5px solid var(--surface);
-  color: var(--text-dim);
-  font-size: 22px;
-  line-height: 1;
-  font-weight: 800;
-  box-shadow: var(--shadow-card);
-}
-.backBtn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
 .helpBtn {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
@@ -63,40 +43,30 @@
   color: transparent;
 }
 
-.catBadge {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  font-size: 13px;
-  font-weight: 700;
-}
-
 .subtitle {
   margin-top: 8px;
   color: var(--text-dim);
   font-size: 15px;
 }
 
-.levels {
+.categories {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.levelBtn {
+/* 카테고리 카드 — LevelSelect .levelBtn 그리드 레시피 재사용 */
+.catBtn {
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-areas:
-    'tag name'
-    'tag desc';
+    'icon name'
+    'icon desc';
   column-gap: 14px;
   row-gap: 2px;
   align-items: center;
   text-align: left;
-  padding: 18px 18px;
+  padding: 20px 18px;
   min-height: var(--tap);
   border-radius: var(--r-lg);
   background: var(--bg-elev);
@@ -105,35 +75,35 @@
   transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
 }
 
-.levelBtn:hover,
-.levelBtn:active {
+.catBtn:hover,
+.catBtn:active {
   transform: translateY(-2px);
   background: var(--bg-elev-2);
-  border-color: rgba(56, 189, 248, 0.4);
+  border-color: rgba(79, 70, 229, 0.4);
 }
 
-.levelTag {
-  grid-area: tag;
-  align-self: center;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: var(--bg);
+.catEmoji {
+  grid-area: icon;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+}
+.catBtn[data-category='travel'] .catEmoji {
+  background: #e6f4fb; /* sky wash */
 }
 
-.levelBtn[data-level='1'] .levelTag { background: #0d7a37; }
-.levelBtn[data-level='2'] .levelTag { background: #946005; }
-.levelBtn[data-level='3'] .levelTag { background: var(--wrong); }
-
-.levelName {
+.catName {
   grid-area: name;
   font-size: 18px;
   font-weight: 700;
 }
 
-.levelDesc {
+.catDesc {
   grid-area: desc;
   font-size: 13px;
   color: var(--text-dim);

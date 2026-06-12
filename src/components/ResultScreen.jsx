@@ -16,6 +16,7 @@ export default function ResultScreen({ game }) {
 
         <blockquote className={styles.quote}>
           <span className={styles.quoteText}>{quote.text}</span>
+          {quote.ko && <span className={styles.quoteKo}>{quote.ko}</span>}
           {quote.author && <cite className={styles.author}>— {quote.author}</cite>}
         </blockquote>
 

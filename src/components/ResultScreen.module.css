@@ -3,8 +3,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh; /* fallback */
   min-height: 100dvh;
-  padding: 24px 18px;
+  padding: 24px 18px max(24px, env(safe-area-inset-bottom));
 }
 
 .card {
@@ -54,6 +55,16 @@
   font-size: 17px;
   line-height: 1.5;
   font-weight: 600;
+}
+
+/* 한국어 뜻 — 학습용 표기 */
+.quoteKo {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  word-break: keep-all;
 }
 
 .author {

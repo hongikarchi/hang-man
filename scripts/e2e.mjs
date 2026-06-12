@@ -93,6 +93,15 @@ async function clickLevel(page, n) {
   }, n)
 }
 
+// 카테고리 선택 화면에서 카테고리 카드 클릭 (기본: 명언)
+async function clickCategory(page, label = '명언') {
+  await page.evaluate((lb) => {
+    const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes(lb))
+    if (b) b.click()
+  }, label)
+  await tick(300)
+}
+
 // "시작/게임 시작/플레이" 등 온보딩 시작 버튼이 있으면 누른다(없으면 무시).
 async function dismissOnboarding(page) {
   await page.evaluate(() => {
@@ -121,9 +130,13 @@ async function main() {
 
     // ===== L2: 탭-투-플레이스 + 오답 + LOSE + 다음문제 =====
     console.log('--- L2: 탭 배치 / 오답 / LOSE / 다음문제 ---')
+    await clickCategory(page, '명언')
     await clickLevel(page, 2); await tick(400); await dismissOnboarding(page); await tick(200)
     let s = await readState(page)
     ok(s.blankCount > 0, '게임 화면에 빈칸 렌더됨')
+    const koHint = await page.evaluate(() =>
+      document.querySelector('[role="note"][aria-label*="한국어"]')?.textContent || '')
+    ok(koHint.length > 0, '게임 중 한국어 뜻 힌트 박스 렌더됨')
     await shot(page, 'game-start')
     const startRem = s.remaining
 
@@ -250,6 +263,7 @@ async function main() {
     // 화면 전환 의존성을 없애려 페이지를 새로 로드하고 L1을 처음부터 선택.
     await page.goto(base, { waitUntil: 'networkidle0', timeout: 20000 })
     await dismissOnboarding(page)
+    await clickCategory(page, '명언')
     await clickLevel(page, 1); await tick(450); await dismissOnboarding(page); await tick(200)
 
     let cm1 = await cardMap(page)
@@ -293,7 +307,26 @@ async function main() {
     }
     const win = await readState(page)
     ok(win.heading != null && /정답/.test(win.heading || ''), '전부 정답 → WIN 결과 화면')
+    // 결과 화면에 한국어 뜻 표기 (학습용)
+    const koResult = await page.evaluate(() => {
+      const bq = document.querySelector('blockquote')
+      return bq ? /[가-힣]/.test(bq.textContent) : false
+    })
+    ok(koResult, '결과 화면에 한국어 뜻 표시')
     await shot(page, 'result-win')
+
+    // ===== 여행 회화: 카테고리 전환 스모크 =====
+    console.log('--- 여행 회화: 카테고리 스모크 ---')
+    await page.goto(base, { waitUntil: 'networkidle0', timeout: 20000 })
+    await dismissOnboarding(page)
+    await clickCategory(page, '여행 회화')
+    await clickLevel(page, 1); await tick(450); await dismissOnboarding(page); await tick(200)
+    const tv = await readState(page)
+    ok(tv.blankCount > 0, '여행 회화 L1 게임 시작(빈칸 렌더)')
+    const tvHint = await page.evaluate(() =>
+      document.querySelector('[role="note"][aria-label*="한국어"]')?.textContent || '')
+    ok(tvHint.length > 0, '여행 회화 한국어 힌트 표시')
+    await shot(page, 'travel-game')
 
     ok(errors.length === 0, `런타임 에러 없음 (${errors.length})`)
     if (errors.length) errors.forEach((e) => console.error('   ', e))

@@ -1,8 +1,8 @@
 .screen {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
   height: 100vh; /* fallback */
+  height: 100dvh; /* 모바일 URL바 표시/숨김에 따라 보이는 영역을 추적 */
   overflow: hidden;
 }
 
@@ -50,6 +50,22 @@
 .levelBadge[data-level='2'] { background: #946005; }
 .levelBadge[data-level='3'] { background: var(--wrong); }
 
+/* 카테고리 칩 — 레벨 배지 옆 보조 정보. 320px급 초소형 화면에서 헤더가
+   넘치지 않도록 유일하게 양보(축소+말줄임)하는 항목. */
+.categoryChip {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 헤더 가운데 여백 채우기용 스페이서 */
 .headerSpacer {
   flex: 1;
@@ -71,12 +87,55 @@
 /* ---- 중앙 보드: 스크롤 가능 ---- */
 .board {
   flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden; /* 가로는 절대 스크롤하지 않음(서브픽셀 방어) */
   -webkit-overflow-scrolling: touch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; /* boardInner 의 margin:auto 센터링용 */
   padding: 20px 16px;
+}
+
+/* 내용이 짧으면 중앙 정렬, 길면 auto 마진이 0이 되어 맨 위부터 스크롤로
+   도달 가능 — 스크롤 컨테이너에 align-items:center 를 주면 위가 잘린다. */
+.boardInner {
+  margin: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  container-type: inline-size; /* QuoteBoard 폰트 캡의 100cqw 기준 폭 */
+}
+
+/* 한국어 뜻 힌트 — 게임 중에도 의미를 보고 추론할 수 있게 상시 표시 */
+.koHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--bg-elev);
+  border: 1px solid var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.koHintLabel {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+.koHintText {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  word-break: keep-all;
 }
 
 /* ---- 하단 트레이: 고정 ---- */
