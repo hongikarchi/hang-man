@@ -7,6 +7,9 @@ import { uniqueLetters } from './cipher.js'
 // 레벨별 시도 횟수 (스펙 §4).
 export const ATTEMPTS_BY_LEVEL = { 1: 8, 2: 7, 3: 6 }
 
+// 라운드당 힌트 횟수 (글자 1종 공개).
+export const HINTS_PER_ROUND = 2
+
 /**
  * 해당 레벨에서 아직 안 푼 명언 중 하나를 무작위 선택한다.
  * playedIds 에 모두 들어있으면(소진) 그 레벨의 기록을 비우고 다시 고른다(무한 반복).

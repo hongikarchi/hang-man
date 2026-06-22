@@ -12,6 +12,7 @@ import {
   pickRevealLetters,
   revealCountForLevel,
   ATTEMPTS_BY_LEVEL,
+  HINTS_PER_ROUND,
 } from '../lib/quotePicker.js'
 
 /** 초기 상태: 아직 레벨 선택 전(INIT). */
@@ -29,6 +30,8 @@ function makeInitialState() {
     // nonce 는 단조 증가 — 같은 빈칸에 연속 오답해도 값이 바뀌어 애니메이션이 재발동된다.
     wrongEvent: null, // { index: number, nonce: number } | null
     wrongNonce: 0, // 단조 증가 카운터
+    hintsLeft: 0, // 남은 힌트 (라운드마다 HINTS_PER_ROUND 로 리셋)
+    meaningRevealed: false, // 한글 뜻 공개 여부 (힌트 1 소모, 라운드마다 리셋)
     revealLetters: [], // 미리 공개된 글자들 (난이도)
     category: null, // 선택된 카테고리 id (null = 카테고리 선택 화면)
     // 카테고리→레벨별 플레이한 문장 id 집합 (진행 추적).
@@ -86,6 +89,8 @@ function initRound(state, level, opts = {}) {
     cipherMap,
     tokens,
     remainingAttempts: ATTEMPTS_BY_LEVEL[level],
+    hintsLeft: HINTS_PER_ROUND,
+    meaningRevealed: false,
     selectedLetter: null,
     selectedBlankIndex: null,
     wrongEvent: null,
@@ -98,6 +103,22 @@ function initRound(state, level, opts = {}) {
 /** 모든 letter 토큰이 correct 인가? (승리 조건, AC8) */
 function isAllCorrect(tokens) {
   return tokens.every((t) => t.type !== 'letter' || t.status === 'correct')
+}
+
+/**
+ * 힌트로 공개할 글자: 미해결 글자 중 등장 빈도 최소(동률은 알파벳순).
+ * 빈도 높은 글자는 암호 반복 패턴으로 스스로 추론하기 쉽고 사전공개와도 중복 —
+ * 힌트는 단서가 가장 적은(틀리면 하트만 잃는) 희귀 글자를 풀어준다. 결정적이라 테스트 용이.
+ */
+function pickHintLetter(tokens) {
+  const freq = {}
+  for (const t of tokens) {
+    if (t.type === 'letter' && t.status !== 'correct') freq[t.letter] = (freq[t.letter] || 0) + 1
+  }
+  const letters = Object.keys(freq)
+  if (letters.length === 0) return null
+  letters.sort((a, b) => freq[a] - freq[b] || (a < b ? -1 : 1))
+  return letters[0]
 }
 
 // reducer/헬퍼는 헤드리스 테스트를 위해 export (UI 없이 검증 가능).
@@ -153,6 +174,34 @@ export function reducer(state, action) {
       if (state.wrongEvent == null) return state
       if (action.nonce != null && action.nonce !== state.wrongEvent.nonce) return state
       return { ...state, wrongEvent: null }
+
+    case 'USE_HINT': {
+      if (state.gameState !== 'PLAYING' || state.hintsLeft <= 0) return state
+      const letter = pickHintLetter(state.tokens)
+      if (!letter) return state // 방어: PLAYING이면 항상 존재
+      // 사전공개와 동일 메커니즘: 그 글자의 모든 위치 correct + isRevealed(인디고 타일)
+      const tokens = state.tokens.map((t) =>
+        t.letter === letter ? { ...t, status: 'correct', isRevealed: true } : t,
+      )
+      return {
+        ...state,
+        tokens,
+        hintsLeft: state.hintsLeft - 1,
+        revealLetters: [...state.revealLetters, letter], // isRevealed ⊆ revealLetters 불변식 유지
+        selectedLetter: null,
+        selectedBlankIndex: null,
+        wrongEvent: null,
+        gameState: isAllCorrect(tokens) ? 'WIN' : 'PLAYING',
+      }
+    }
+
+    case 'REVEAL_MEANING': {
+      // 한글 뜻 공개 = 힌트 1 소모(글자 힌트와 같은 풀). 토큰은 건드리지 않음 →
+      // WIN 유발 불가. 이미 공개됐거나 힌트 0이면 멱등(동일 참조).
+      if (state.gameState !== 'PLAYING') return state
+      if (state.meaningRevealed || state.hintsLeft <= 0) return state
+      return { ...state, meaningRevealed: true, hintsLeft: state.hintsLeft - 1 }
+    }
 
     case 'PLACE': {
       if (state.gameState !== 'PLAYING') return state
@@ -265,6 +314,8 @@ export function useGame() {
     [],
   )
   const clearWrong = useCallback((nonce) => dispatch({ type: 'CLEAR_WRONG', nonce }), [])
+  const requestHint = useCallback(() => dispatch({ type: 'USE_HINT' }), [])
+  const revealMeaning = useCallback(() => dispatch({ type: 'REVEAL_MEANING' }), [])
   const nextQuestion = useCallback(() => dispatch({ type: 'NEXT_QUESTION' }), [])
   const restart = useCallback(() => dispatch({ type: 'RESTART' }), [])
   const backToLevels = useCallback(() => dispatch({ type: 'BACK_TO_LEVELS' }), [])
@@ -282,6 +333,8 @@ export function useGame() {
       selectBlank,
       placeLetter,
       clearWrong,
+      requestHint,
+      revealMeaning,
       nextQuestion,
       restart,
       backToLevels,

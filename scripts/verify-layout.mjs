@@ -77,11 +77,20 @@ const clickLevel = (page, n) => page.evaluate((lv) => {
   if (b) b.click()
 }, n)
 
-/** ?quote=<id> (DEV 훅)로 특정 문장을 강제하고 게임 화면까지 진입 */
-async function setupGame(page, base, quoteId, level) {
+/** ?quote=<id> (DEV 훅)로 특정 문장을 강제하고 게임 화면까지 진입.
+ *  revealMeaning=true 면 뜻 보기를 눌러 한글 뜻 바를 펼친다(레이아웃 최악 케이스). */
+async function setupGame(page, base, quoteId, level, revealMeaning = true) {
   await page.goto(`${base}?quote=${quoteId}`, { waitUntil: 'networkidle0', timeout: 20000 })
   await clickCategory(page); await tick(300)
   await clickLevel(page, level); await tick(450)
+  if (revealMeaning) {
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll('button')]
+        .find((x) => /뜻 보기/.test(x.getAttribute('aria-label') || '') && !x.disabled)
+      if (b) b.click()
+    })
+    await tick(250)
+  }
 }
 
 const SLOT_SEL = '[aria-label*="빈칸"], [aria-label*="채워짐"]'
@@ -126,24 +135,32 @@ async function main() {
       ok(h.boardOverflow <= 0, `보드 가로 오버플로 없음 (${h.boardOverflow}px)`)
       ok(h.slotCount > 50 && h.outOfBounds === 0, `모든 칸(${h.slotCount})이 화면 폭 안 (이탈 ${h.outOfBounds})`)
 
-      // 2) 세로: 내용이 넘치고, 맨 위(한국어 힌트)부터 맨 아래 칸까지 스크롤로 도달
+      // 2) 세로: 내용이 넘치고, 첫 칸~마지막 칸이 스크롤로 도달 가능 +
+      //    뜻 바가 보드 스크롤과 무관하게 헤더 아래 고정(sticky)인지
       const v = await page.evaluate((sel) => {
         const m = document.querySelector('main')
-        const mr = m.getBoundingClientRect()
+        const mr = m.getBoundingClientRect() // main rect 는 내용 스크롤해도 안 움직임 → 재사용 OK
         const overflows = m.scrollHeight > m.clientHeight
         m.scrollTop = 0
-        const hint = document.querySelector('[role="note"]')
-        const topReachable = hint && hint.getBoundingClientRect().top >= mr.top - 0.5
+        const firstSlot = document.querySelector(sel)
+        const topReachable = firstSlot && firstSlot.getBoundingClientRect().top >= mr.top - 0.5
+        const bar = document.querySelector('[role="note"]')
+        const barTop0 = bar ? bar.getBoundingClientRect().top : null
         m.scrollTop = m.scrollHeight
         const slots = [...document.querySelectorAll(sel)]
         const last = slots[slots.length - 1].getBoundingClientRect()
         const bottomReachable = last.bottom <= mr.bottom + 1
+        const br = bar ? bar.getBoundingClientRect() : null
+        // 스크롤 후에도 위치 불변 + 보드 위(헤더 아래)에 + 보임
+        const barPinned = !!br && barTop0 != null && Math.abs(br.top - barTop0) < 0.5 &&
+          br.bottom <= mr.top + 0.5 && br.top >= 0 && br.height > 0
         m.scrollTop = 0
-        return { overflows, topReachable, bottomReachable }
+        return { overflows, topReachable, bottomReachable, barPinned }
       }, SLOT_SEL)
       ok(v.overflows, '보드 내용이 세로로 넘침(스크롤 검증 유효)')
-      ok(v.topReachable, '★ scrollTop=0 에서 맨 위(힌트)가 보임 — 센터링 클리핑 없음')
+      ok(v.topReachable, '★ scrollTop=0 에서 첫 칸이 보임 — 센터링 클리핑 없음')
       ok(v.bottomReachable, '★ 끝까지 스크롤 시 마지막 칸 보임')
+      ok(v.barPinned, '★ 뜻 바가 보드 스크롤과 무관하게 헤더 아래 고정')
 
       // 3) 터치 드래그 스크롤 (빠른 스와이프 → dnd 드래그가 아니라 스크롤)
       const boardMid = await page.evaluate(() => {
@@ -180,6 +197,27 @@ async function main() {
       ok(fixed.cardTappable, '마지막 글자 카드가 가려지지 않고 탭 가능')
       await shot(page, `game-304-${vp.width}x${vp.height}`)
     }
+
+    // 4b) 뜻 공개 전(collapsed) 상태 — 라운드 시작 시 사용자가 보는 기본 화면.
+    //     "뜻 보기" 버튼이 좁은 화면에서 가로 오버플로를 일으키지 않는지(360px).
+    console.log('--- 뜻 보기 버튼(collapsed) 가로 맞춤 ---')
+    await page.setViewport({ width: 360, height: 740, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+    await setupGame(page, base, 304, 3, false) // revealMeaning=false → 버튼 상태 유지
+    const collapsed = await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')]
+        .find((x) => /뜻 보기/.test(x.getAttribute('aria-label') || ''))
+      const bar = btn ? btn.closest('div') : null
+      return {
+        btnPresent: !!btn,
+        noteAbsent: document.querySelector('[role="note"]') == null,
+        docOverflow: document.documentElement.scrollWidth - window.innerWidth,
+        barOverflow: bar ? bar.scrollWidth - bar.clientWidth : 0,
+      }
+    })
+    ok(collapsed.btnPresent && collapsed.noteAbsent, '공개 전: 뜻 보기 버튼만 있고 뜻 텍스트는 없음')
+    ok(collapsed.docOverflow <= 0, `공개 전 문서 가로 오버플로 없음 (${collapsed.docOverflow}px)`)
+    ok(collapsed.barOverflow <= 0, `공개 전 뜻 바 가로 오버플로 없음 (${collapsed.barOverflow}px)`)
+    await shot(page, 'meaning-collapsed-360')
 
     // 5) dvh 캐스케이드 + 뷰포트 높이 축소(URL바 등장 프록시)
     console.log('--- dvh 캐스케이드 / 뷰포트 축소 ---')

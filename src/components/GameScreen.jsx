@@ -81,14 +81,32 @@ export default function GameScreen({ game, onHelp }) {
           </button>
         </header>
 
+        {state.quote?.ko &&
+          (state.meaningRevealed ? (
+            <div className={styles.hintBar} role="note" aria-label="한국어 뜻">
+              <span className={styles.koHintLabel}>뜻</span>
+              <p className={styles.koHintText}>{state.quote.ko}</p>
+            </div>
+          ) : (
+            <div className={styles.hintBar}>
+              <button
+                type="button"
+                className={styles.meaningBtn}
+                onClick={actions.revealMeaning}
+                disabled={state.hintsLeft <= 0}
+                aria-label={`한글 뜻 보기, 힌트 1 소모, 남은 힌트 ${state.hintsLeft}개`}
+              >
+                <span className={styles.koHintLabel}>뜻</span>
+                <span className={styles.meaningBtnText}>
+                  {state.hintsLeft > 0 ? '한글 뜻 보기' : '힌트가 없어요'}
+                </span>
+                {state.hintsLeft > 0 && <span className={styles.meaningCost}>힌트 1</span>}
+              </button>
+            </div>
+          ))}
+
         <main className={styles.board}>
           <div className={styles.boardInner}>
-            {state.quote?.ko && (
-              <div className={styles.koHint} role="note" aria-label="한국어 뜻">
-                <span className={styles.koHintLabel}>뜻</span>
-                <p className={styles.koHintText}>{state.quote.ko}</p>
-              </div>
-            )}
             <QuoteBoard
               tokens={tokens}
               selectedLetter={selectedLetter}
@@ -116,10 +134,21 @@ export default function GameScreen({ game, onHelp }) {
               </span>
             ) : (
               <span className={styles.instructIdle}>
-                <b>글자 카드</b>나 <b>빈칸</b>을 탭해서 채우세요 <span className={styles.cue}>▾</span>
+                <b>카드</b>나 <b>빈칸</b>을 탭해 채우세요 <span className={styles.cue}>▾</span>
               </span>
             )}
-            <span className={styles.remain}>남은 {remainingBlanks}</span>
+            <span className={styles.metaRow}>
+              <button
+                type="button"
+                className={styles.hintBtn}
+                onClick={actions.requestHint}
+                disabled={state.hintsLeft <= 0}
+                aria-label={`힌트 사용, 남은 힌트 ${state.hintsLeft}개`}
+              >
+                💡 힌트 <b>{state.hintsLeft}</b>
+              </button>
+              <span className={styles.remain}>남은 {remainingBlanks}</span>
+            </span>
           </div>
           <CardTray
             cards={cards}

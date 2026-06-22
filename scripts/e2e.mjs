@@ -134,11 +134,47 @@ async function main() {
     await clickLevel(page, 2); await tick(400); await dismissOnboarding(page); await tick(200)
     let s = await readState(page)
     ok(s.blankCount > 0, '게임 화면에 빈칸 렌더됨')
-    const koHint = await page.evaluate(() =>
-      document.querySelector('[role="note"][aria-label*="한국어"]')?.textContent || '')
-    ok(koHint.length > 0, '게임 중 한국어 뜻 힌트 박스 렌더됨')
     await shot(page, 'game-start')
-    const startRem = s.remaining
+
+    // ===== 뜻 보기: 처음엔 숨겨져 있고, 버튼을 눌러야(힌트 1 소모) 공개 =====
+    {
+      const hidden = await page.evaluate(() =>
+        document.querySelector('[role="note"][aria-label*="한국어"]') == null)
+      ok(hidden, '게임 시작 시 한글 뜻은 숨겨져 있음(처음부터 안 보임)')
+      const before = await readState(page)
+      const clicked = await page.evaluate(() => {
+        const b = [...document.querySelectorAll('button')]
+          .find((x) => /뜻 보기/.test(x.getAttribute('aria-label') || '') && !x.disabled)
+        if (!b) return false
+        b.click(); return true
+      })
+      ok(clicked, '뜻 보기 버튼 존재/클릭 가능')
+      await tick(300)
+      const koHint = await page.evaluate(() =>
+        document.querySelector('[role="note"][aria-label*="한국어"]')?.textContent || '')
+      ok(/[가-힣]/.test(koHint), '★ 뜻 보기 클릭 → 한글 뜻 공개됨')
+      const after = await readState(page)
+      ok(after.remaining === before.remaining, '뜻 보기는 빈칸을 채우지 않음(토큰 불변)')
+      ok(after.hearts === before.hearts, '뜻 보기는 하트 소모 없음')
+    }
+
+    // ===== 글자 힌트: 하트 소모 없이 글자 1종 공개 (뜻 보기로 1 썼으니 1개 남음) =====
+    {
+      const h0 = await readState(page)
+      const clicked = await page.evaluate(() => {
+        const b = [...document.querySelectorAll('button')]
+          .find((x) => /힌트 사용/.test(x.getAttribute('aria-label') || '') && !x.disabled)
+        if (!b) return false
+        b.click(); return true
+      })
+      ok(clicked, '글자 힌트 버튼 존재/클릭 가능')
+      await tick(300)
+      const h1 = await readState(page)
+      ok(h1.remaining < h0.remaining, `★ 글자 힌트 → 남은 빈칸 감소 ${h0.remaining}→${h1.remaining}`)
+      ok(h1.hearts === h0.hearts, '글자 힌트는 하트 소모 없음')
+    }
+
+    const startRem = (await readState(page)).remaining
 
     const cm = await cardMap(page)
     const fb = await page.$('[role="button"][aria-label*="빈칸"]')
@@ -323,9 +359,16 @@ async function main() {
     await clickLevel(page, 1); await tick(450); await dismissOnboarding(page); await tick(200)
     const tv = await readState(page)
     ok(tv.blankCount > 0, '여행 회화 L1 게임 시작(빈칸 렌더)')
+    // 뜻 보기 버튼을 눌러 공개 → 한글 뜻 표시 확인
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll('button')]
+        .find((x) => /뜻 보기/.test(x.getAttribute('aria-label') || '') && !x.disabled)
+      if (b) b.click()
+    })
+    await tick(300)
     const tvHint = await page.evaluate(() =>
       document.querySelector('[role="note"][aria-label*="한국어"]')?.textContent || '')
-    ok(tvHint.length > 0, '여행 회화 한국어 힌트 표시')
+    ok(/[가-힣]/.test(tvHint), '여행 회화 뜻 보기 → 한국어 뜻 표시')
     await shot(page, 'travel-game')
 
     ok(errors.length === 0, `런타임 에러 없음 (${errors.length})`)

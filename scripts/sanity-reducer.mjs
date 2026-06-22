@@ -151,5 +151,75 @@ const dq = initRound(makeInitialState(), 1, { forceQuoteId: 101 })
 ok(dq.category === 'quotes' && typeof dq.quote.ko === 'string',
    '카테고리 미지정 → 기본(quotes) + ko 존재 (기존 테스트 호환)')
 
+console.log('\n--- 힌트: USE_HINT ---')
+ok(makeInitialState().hintsLeft === 0, 'INIT: hintsLeft 0')
+let h = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+ok(h.hintsLeft === 2, '라운드 시작: 힌트 2개')
+// 기대 글자: 미해결 중 최소 빈도(동률 알파벳순) — 리듀서와 동일 규칙으로 독립 계산
+const hFreq = {}
+for (const t of letterTokens(h)) if (t.status === 'empty') hFreq[t.letter] = (hFreq[t.letter] || 0) + 1
+const expected = Object.keys(hFreq).sort((a, b) => hFreq[a] - hFreq[b] || (a < b ? -1 : 1))[0]
+const h1 = reducer(h, { type: 'USE_HINT' })
+ok(h1.hintsLeft === 1, '힌트 사용 → 1 감소')
+ok(letterTokens(h1).filter((t) => t.letter === expected).every((t) => t.status === 'correct' && t.isRevealed),
+   `★ 최소 빈도 글자(${expected}) 전 위치 공개 + isRevealed`)
+const newlySolved = Object.keys(hFreq).filter((l) =>
+  letterTokens(h1).filter((t) => t.letter === l).every((t) => t.status === 'correct'))
+ok(newlySolved.length === 1, '정확히 글자 1종만 공개됨')
+ok(h1.remainingAttempts === h.remainingAttempts, '힌트는 하트를 소모하지 않음')
+ok(h1.revealLetters.includes(expected), 'revealLetters 에 추가(불변식 유지)')
+// 선택/오답 플래시 클리어
+let hSel = reducer(h, { type: 'SELECT_LETTER', letter: expected })
+hSel = reducer(hSel, { type: 'USE_HINT' })
+ok(hSel.selectedLetter === null && hSel.selectedBlankIndex === null, '힌트 사용 시 선택 해제')
+const someEmpty = emptyTok(h)
+let hWrong = place(h, someEmpty.index, someEmpty.letter === 'z' ? 'q' : 'z')
+hWrong = reducer(hWrong, { type: 'USE_HINT' })
+ok(hWrong.wrongEvent === null, '힌트 사용 시 오답 플래시 클리어')
+// 소진 가드 + 동일 참조
+const h2 = reducer(h1, { type: 'USE_HINT' })
+ok(h2.hintsLeft === 0, '두 번째 힌트 → 0')
+ok(reducer(h2, { type: 'USE_HINT' }) === h2, '힌트 0개면 무시(동일 참조)')
+// 마지막 글자를 힌트로 → WIN
+let hw = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+const unsolvedSpecies = [...new Set(letterTokens(hw).filter((t) => t.status === 'empty').map((t) => t.letter))]
+for (const l of unsolvedSpecies.slice(0, -1)) hw = place(hw, letterTokens(hw).find((t) => t.letter === l).index, l)
+ok(hw.gameState === 'PLAYING', '마지막 1종 남음 — 아직 PLAYING')
+hw = reducer(hw, { type: 'USE_HINT' })
+ok(hw.gameState === 'WIN', '★ 마지막 글자 힌트 공개 → WIN')
+ok(reducer(hw, { type: 'USE_HINT' }) === hw, 'WIN 상태에서 힌트 무시')
+// 라운드 전환 시 리셋
+ok(reducer(h2, { type: 'NEXT_QUESTION' }).hintsLeft === 2, 'NEXT_QUESTION → 힌트 리셋')
+ok(reducer(h2, { type: 'RESTART' }).hintsLeft === 2, 'RESTART → 힌트 리셋')
+
+console.log('\n--- 뜻 보기: REVEAL_MEANING (힌트 1 소모) ---')
+let m = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+ok(m.meaningRevealed === false, '라운드 시작: 뜻 숨김')
+ok(makeInitialState().meaningRevealed === false, 'INIT: 뜻 숨김')
+const blanksBefore = m.tokens.filter((t) => t.type === 'letter' && t.status !== 'correct').length
+const m1 = reducer(m, { type: 'REVEAL_MEANING' })
+ok(m1.meaningRevealed === true, '뜻 보기 → 공개됨')
+ok(m1.hintsLeft === 1, '뜻 보기 → 힌트 1 소모')
+ok(m1.remainingAttempts === m.remainingAttempts, '뜻 보기는 하트 미소모')
+const blanksAfter = m1.tokens.filter((t) => t.type === 'letter' && t.status !== 'correct').length
+ok(blanksAfter === blanksBefore && m1.gameState === 'PLAYING',
+   '★ 뜻 보기는 토큰 불변(글자 안 채움) — WIN 유발 불가')
+ok(reducer(m1, { type: 'REVEAL_MEANING' }) === m1, '이미 공개됐으면 멱등(동일 참조, 힌트 추가 소모 안 함)')
+// 힌트 0이면 뜻 보기 불가
+let mz = reducer(reducer(m, { type: 'USE_HINT' }), { type: 'USE_HINT' })
+ok(mz.hintsLeft === 0, '힌트 2개 모두 글자에 사용 → 0')
+ok(reducer(mz, { type: 'REVEAL_MEANING' }) === mz, '힌트 0개면 뜻 보기 무시(동일 참조)')
+// WIN/INIT 상태 가드
+const mWin = { ...m1, gameState: 'WIN', meaningRevealed: false, hintsLeft: 2 }
+ok(reducer(mWin, { type: 'REVEAL_MEANING' }) === mWin, 'PLAYING 아니면 뜻 보기 무시')
+// 글자 힌트와 뜻 보기는 같은 풀을 공유
+let mm = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+mm = reducer(mm, { type: 'REVEAL_MEANING' }) // 1 소모
+mm = reducer(mm, { type: 'USE_HINT' }) // 1 소모
+ok(mm.hintsLeft === 0 && mm.meaningRevealed === true, '뜻 보기+글자 힌트가 힌트 풀 공유(2→0)')
+// 라운드 전환 시 리셋
+ok(reducer(m1, { type: 'NEXT_QUESTION' }).meaningRevealed === false, 'NEXT_QUESTION → 뜻 숨김 리셋')
+ok(reducer(m1, { type: 'RESTART' }).meaningRevealed === false, 'RESTART → 뜻 숨김 리셋')
+
 console.log(`\n결과: ${pass} passed, ${fail} failed`)
 process.exit(fail === 0 ? 0 : 1)

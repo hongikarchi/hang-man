@@ -41,8 +41,15 @@ export default function HowToPlay({ onClose }) {
           <li>
             <span className={styles.stepNum}>3</span>
             <span>
-              칸 아래 <b>숫자</b>가 힌트예요. 같은 숫자끼리 같은 글자!
+              칸 아래 <b>숫자</b>는 단서예요. 같은 숫자끼리 같은 글자!
               쉬운 레벨은 <b>몇 글자가 미리 채워져</b> 있어요.
+            </span>
+          </li>
+          <li>
+            <span className={styles.stepNum}>4</span>
+            <span>
+              라운드당 <b>힌트 2번</b>! <b>💡 힌트</b>는 글자 1종을,
+              <b> 뜻 보기</b>는 한글 해석을 공개해요. 어디에 쓸지 선택!
             </span>
           </li>
           <li>
