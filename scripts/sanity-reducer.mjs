@@ -192,6 +192,32 @@ ok(reducer(hw, { type: 'USE_HINT' }) === hw, 'WIN 상태에서 힌트 무시')
 ok(reducer(h2, { type: 'NEXT_QUESTION' }).hintsLeft === 2, 'NEXT_QUESTION → 힌트 리셋')
 ok(reducer(h2, { type: 'RESTART' }).hintsLeft === 2, 'RESTART → 힌트 리셋')
 
+// --- 마지막 힌트 글자 강조 (lastHintLetter) ---
+// ① set: 힌트 사용 → 그 글자가 lastHintLetter
+ok(makeInitialState().lastHintLetter === null, 'INIT: lastHintLetter null')
+let lh = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+ok(lh.lastHintLetter === null, '라운드 시작: lastHintLetter null')
+const lh1 = reducer(lh, { type: 'USE_HINT' })
+ok(lh1.lastHintLetter === expected, `★ 힌트 사용 → lastHintLetter = 공개 글자(${expected})`)
+// ② overwrite: 두 번째 힌트 → 새 글자로 덮어씀(append 아님)
+const lh2 = reducer(lh1, { type: 'USE_HINT' })
+ok(lh2.lastHintLetter !== null && lh2.lastHintLetter !== expected,
+   `★ 두 번째 힌트 → lastHintLetter 가 새 글자로 덮어써짐(${lh2.lastHintLetter})`)
+// ③ clear-on-correct-PLACE: 다른(미해결) 글자를 정답 배치 → 강조 해제
+const lhFresh = reducer(initRound(makeInitialState(), 2, { forceQuoteId: 201 }), { type: 'USE_HINT' })
+const otherEmpty = letterTokens(lhFresh).find((t) => t.status === 'empty' && t.letter !== lhFresh.lastHintLetter)
+const lhPlaced = place(lhFresh, otherEmpty.index, otherEmpty.letter)
+ok(lhPlaced.lastHintLetter === null, '★ 다른 글자 정답 배치 → lastHintLetter 해제')
+// ④ preserve-on-wrong-PLACE: 오답 배치는 강조 유지(아무것도 안 채우므로)
+const lhWrongTok = letterTokens(lhFresh).find((t) => t.status === 'empty')
+const lhWrongGuess = lhWrongTok.letter === 'z' ? 'q' : 'z'
+const lhWrong = place(lhFresh, lhWrongTok.index, lhWrongGuess)
+ok(lhWrong.remainingAttempts === lhFresh.remainingAttempts - 1, '오답 → 하트 감소(전제 확인)')
+ok(lhWrong.lastHintLetter === lhFresh.lastHintLetter, '★ 오답 배치 → lastHintLetter 유지')
+// ⑤ round-reset: 강조가 다음 라운드로 새지 않음
+ok(reducer(lh1, { type: 'NEXT_QUESTION' }).lastHintLetter === null, 'NEXT_QUESTION → lastHintLetter 리셋')
+ok(reducer(lh1, { type: 'RESTART' }).lastHintLetter === null, 'RESTART → lastHintLetter 리셋')
+
 console.log('\n--- 뜻 보기: REVEAL_MEANING (힌트 1 소모) ---')
 let m = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
 ok(m.meaningRevealed === false, '라운드 시작: 뜻 숨김')

@@ -20,6 +20,7 @@ export default function QuoteBoard({
   selectedBlankIndex,
   wrongEvent,
   draggingLetter,
+  lastHintLetter,
   onTapBlank,
 }) {
   const groups = useMemo(() => groupIntoWords(tokens), [tokens])
@@ -54,6 +55,7 @@ export default function QuoteBoard({
                   token={t}
                   isSelectedLetter={selectedLetter === t.letter}
                   isSelectedBlank={selectedBlankIndex === t.index}
+                  isLastHint={lastHintLetter != null && t.letter === lastHintLetter}
                   isWrong={wrongEvent != null && wrongEvent.index === t.index}
                   wrongNonce={wrongEvent != null && wrongEvent.index === t.index ? wrongEvent.nonce : null}
                   highlightDrop={

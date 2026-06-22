@@ -17,7 +17,7 @@ import styles from './GameScreen.module.css'
 
 export default function GameScreen({ game, onHelp }) {
   const { state, cards, letterProgress, remainingBlanks, actions } = game
-  const { level, selectedLetter, selectedBlankIndex, wrongEvent, tokens } = state
+  const { level, selectedLetter, selectedBlankIndex, wrongEvent, tokens, lastHintLetter } = state
 
   // 오답 플래시(빨강/흔들림)를 일정 시간 뒤 클리어. nonce 로 최신 이벤트만 클리어.
   useEffect(() => {
@@ -113,6 +113,7 @@ export default function GameScreen({ game, onHelp }) {
               selectedBlankIndex={selectedBlankIndex}
               wrongEvent={wrongEvent}
               draggingLetter={draggingLetter}
+              lastHintLetter={lastHintLetter}
               onTapBlank={(index) => {
                 // 글자가 선택돼 있으면 배치, 아니면 이 빈칸을 선택(빈칸 우선)
                 if (selectedLetter) actions.placeLetter(index, selectedLetter)

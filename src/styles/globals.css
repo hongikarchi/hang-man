@@ -20,6 +20,9 @@
   --correct-bg:    #e7f6ec;   /* green wash */
   --wrong:         #dc2626;   /* red-600 */
   --wrong-bg:      #fdecec;   /* red wash */
+  --hint:          #b45309;   /* amber-700 — 마지막 힌트 글자 강조(AA on amber wash) */
+  --hint-bg:       #fef3c7;   /* amber-100 wash */
+  --hint-ring:     #f59e0b;   /* amber-500 — glow/ring */
   --cipher:        #565e6b;   /* hint number — muted but AA on slot bg */
 
   /* ---- spacing / radius ---- */

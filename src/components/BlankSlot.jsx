@@ -11,6 +11,7 @@ export default function BlankSlot({
   token,
   isSelectedLetter,
   isSelectedBlank,
+  isLastHint,
   isWrong,
   wrongNonce,
   highlightDrop,
@@ -27,6 +28,8 @@ export default function BlankSlot({
     styles.slot,
     filled ? styles.filled : styles.empty,
     token.isRevealed ? styles.revealed : '',
+    // 마지막 힌트 글자 강조 — .revealed 뒤에 와서 시각적으로 이긴다(아래 CSS 참고).
+    isLastHint ? styles.lastHint : '',
     isSelectedLetter && filled ? styles.matchHint : '',
     isSelectedBlank ? styles.selectedBlank : '',
     highlightDrop ? styles.droppable : '',
@@ -45,7 +48,11 @@ export default function BlankSlot({
       role={filled ? undefined : 'button'}
       tabIndex={filled ? undefined : 0}
       aria-pressed={filled ? undefined : isSelectedBlank}
-      aria-label={filled ? `채워짐: ${token.letter}` : `빈칸, 힌트 ${token.cipher}`}
+      aria-label={
+        filled
+          ? `채워짐: ${token.letter}${isLastHint ? ' (방금 힌트로 공개)' : ''}`
+          : `빈칸, 힌트 ${token.cipher}`
+      }
       onClick={filled ? undefined : onTap}
       onKeyDown={
         filled

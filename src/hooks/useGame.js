@@ -32,6 +32,9 @@ function makeInitialState() {
     wrongNonce: 0, // 단조 증가 카운터
     hintsLeft: 0, // 남은 힌트 (라운드마다 HINTS_PER_ROUND 로 리셋)
     meaningRevealed: false, // 한글 뜻 공개 여부 (힌트 1 소모, 라운드마다 리셋)
+    // 마지막 힌트로 공개한 글자 (어느 알파벳이 방금 채워졌는지 강조 표시).
+    // 다른 글자를 새로 채우면(정답 배치 또는 다음 힌트) 해제. null = 강조 없음.
+    lastHintLetter: null,
     revealLetters: [], // 미리 공개된 글자들 (난이도)
     category: null, // 선택된 카테고리 id (null = 카테고리 선택 화면)
     // 카테고리→레벨별 플레이한 문장 id 집합 (진행 추적).
@@ -91,6 +94,7 @@ function initRound(state, level, opts = {}) {
     remainingAttempts: ATTEMPTS_BY_LEVEL[level],
     hintsLeft: HINTS_PER_ROUND,
     meaningRevealed: false,
+    lastHintLetter: null,
     selectedLetter: null,
     selectedBlankIndex: null,
     wrongEvent: null,
@@ -188,6 +192,7 @@ export function reducer(state, action) {
         tokens,
         hintsLeft: state.hintsLeft - 1,
         revealLetters: [...state.revealLetters, letter], // isRevealed ⊆ revealLetters 불변식 유지
+        lastHintLetter: letter, // 이 글자를 강조 (다음 힌트는 덮어쓰고, 다른 글자 정답 배치는 해제)
         selectedLetter: null,
         selectedBlankIndex: null,
         wrongEvent: null,
@@ -226,6 +231,9 @@ export function reducer(state, action) {
         return {
           ...state,
           tokens,
+          // 사용자가 다른 글자를 새로 채움 → 힌트 강조 해제("다른 알파벳을 새로 채우기 전까지").
+          // 오답 분기는 아무것도 안 채우므로 강조를 유지한다(여기서만 해제).
+          lastHintLetter: null,
           selectedLetter: null,
           selectedBlankIndex: null,
           wrongEvent: null,

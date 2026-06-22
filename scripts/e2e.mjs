@@ -172,6 +172,22 @@ async function main() {
       const h1 = await readState(page)
       ok(h1.remaining < h0.remaining, `★ 글자 힌트 → 남은 빈칸 감소 ${h0.remaining}→${h1.remaining}`)
       ok(h1.hearts === h0.hearts, '글자 힌트는 하트 소모 없음')
+
+      // 마지막 힌트 글자 강조: 클래스가 아니라 '렌더된 배경색'으로 검증(.revealed 인디고를
+      // 이겨야 함). 앰버 배경(--hint-bg #fef3c7 = rgb(254, 243, 199))을 가진 칸이 1개 이상.
+      const amberCount = await page.evaluate(() => {
+        const AMBER = 'rgb(254, 243, 199)'
+        return [...document.querySelectorAll('[aria-label^="채워짐"]')]
+          .filter((el) => {
+            const g = el.querySelector('span') // .glyph 가 첫 자식 span
+            return g && getComputedStyle(g).backgroundColor === AMBER
+          }).length
+      })
+      ok(amberCount >= 1, `★ 힌트로 채운 글자가 앰버로 강조됨 (앰버 칸 ${amberCount}개)`)
+      // 같은 알파벳의 모든 위치가 함께 강조됐는지: aria-label 에 "방금 힌트로 공개" 표기
+      const hintLabeled = await page.evaluate(() =>
+        [...document.querySelectorAll('[aria-label*="방금 힌트로 공개"]')].length)
+      ok(hintLabeled === amberCount && hintLabeled >= 1, '강조 칸 = 힌트 글자의 모든 위치(라벨 일치)')
     }
 
     const startRem = (await readState(page)).remaining
@@ -196,6 +212,17 @@ async function main() {
     // 크립토그램 방식: 한 글자 정답이면 같은 글자 모든 칸이 채워짐 → 1개 이상 감소
     ok(s.remaining < startRem && s.remaining >= 0, `탭 배치로 남은 빈칸 ${startRem}→${s.remaining} (≥1 감소)`)
     ok(s.filled >= 1, '탭 배치로 빈칸 채워짐')
+
+    // 다른 글자를 새로 채웠으니 힌트 강조가 사라져야 함("다른 알파벳을 새로 채우기 전까지").
+    const amberAfterPlace = await page.evaluate(() => {
+      const AMBER = 'rgb(254, 243, 199)'
+      return [...document.querySelectorAll('[aria-label^="채워짐"]')]
+        .filter((el) => {
+          const g = el.querySelector('span')
+          return g && getComputedStyle(g).backgroundColor === AMBER
+        }).length
+    })
+    ok(amberAfterPlace === 0, '★ 다른 글자 배치 후 힌트 강조 사라짐')
 
     // 양방향: 빈칸 먼저 탭 → (리렌더 대기) → 정답 카드 탭 → 채워짐
     {
