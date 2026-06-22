@@ -1,6 +1,6 @@
 import styles from './ResultScreen.module.css'
 
-export default function ResultScreen({ game }) {
+export default function ResultScreen({ game, lastEarned = 0, total = 0 }) {
   const { state, actions } = game
   const won = state.gameState === 'WIN'
   const quote = state.quote
@@ -13,6 +13,13 @@ export default function ResultScreen({ game }) {
         <p className={styles.sub}>
           {won ? '모든 빈칸을 맞혔어요.' : '시도를 모두 사용했어요. 정답은:'}
         </p>
+
+        {won && (
+          <div className={styles.score}>
+            <span className={styles.earned}>+{lastEarned}점</span>
+            <span className={styles.total}>누적 {total}점</span>
+          </div>
+        )}
 
         <blockquote className={styles.quote}>
           <span className={styles.quoteText}>{quote.text}</span>

@@ -10,10 +10,39 @@
   min-height: 100dvh;
 }
 
-.helpBtn {
+/* 상단 바: 랭킹 + 도움말 (이전엔 도움말만 절대배치였음) */
+.topBar {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
+  left: 16px;
   right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rankBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
+}
+.rankBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.helpBtn {
+  flex: 0 0 auto;
   width: 38px;
   height: 38px;
   border-radius: 999px;
@@ -27,6 +56,31 @@
 .helpBtn:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* 닉네임 칩 — 탭하면 닉네임 변경 프롬프트 */
+.nickChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  border: 1.5px solid transparent;
+  color: var(--text);
+  font-size: 14px;
+}
+.nickChip:hover {
+  border-color: var(--accent);
+}
+.nickName {
+  font-weight: 700;
+}
+.nickTotal {
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
 }
 
 .header {

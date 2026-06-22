@@ -104,11 +104,22 @@ async function clickCategory(page, label = '명언') {
 
 // "시작/게임 시작/플레이" 등 온보딩 시작 버튼이 있으면 누른다(없으면 무시).
 async function dismissOnboarding(page) {
-  await page.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find((x) => /시작|게임 시작|플레이|start|건너뛰기|확인|닫기/i.test(x.textContent))
-    if (b) b.click()
-  })
-  await tick(200)
+  // 온보딩 오버레이가 여러 겹일 수 있어(닉네임 → 플레이 방법) 모두 닫는다.
+  // 각 클릭 후 React 리렌더/언마운트를 기다려야 다음 오버레이 버튼에 도달한다
+  // (한 evaluate 안에서 연속 클릭하면 setState 가 flush 안 돼 같은 버튼만 반복 클릭됨).
+  // disabled 버튼(예: 빈 닉네임의 "시작하기")은 실제 닫기 대상이 아니므로 제외.
+  for (let i = 0; i < 3; i++) {
+    const clicked = await page.evaluate(() => {
+      const b = [...document.querySelectorAll('button')].find(
+        (x) => !x.disabled && /시작|게임 시작|플레이|start|건너뛰기|확인|닫기/i.test(x.textContent),
+      )
+      if (!b) return false
+      b.click()
+      return true
+    })
+    if (!clicked) break
+    await tick(160)
+  }
 }
 
 async function main() {

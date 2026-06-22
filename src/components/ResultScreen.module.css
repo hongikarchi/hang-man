@@ -42,6 +42,37 @@
   font-size: 14px;
 }
 
+/* 획득 점수 / 누적 점수 (WIN 전용) */
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.earned {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--correct);
+  background: var(--correct-bg);
+  padding: 6px 14px;
+  border-radius: 999px;
+  animation: pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+.total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
 .quote {
   margin: 22px 0;
   padding: 18px 16px;
@@ -118,5 +149,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .emoji { animation: none; }
+  .card, .emoji, .earned { animation: none; }
 }

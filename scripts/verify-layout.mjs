@@ -108,10 +108,13 @@ async function main() {
   try {
     const page = await browser.newPage()
     page.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message))
-    // 온보딩 모달은 레이아웃 검증과 무관하므로 본 적 있는 것으로 처리.
-    // (about:blank 등 localStorage 접근이 막힌 문서에서도 주입되므로 try/catch)
+    // 온보딩 모달(플레이 방법 + 닉네임)은 레이아웃 검증과 무관하므로 본 적/정한 적
+    // 있는 것으로 처리. (about:blank 등 localStorage 접근이 막힌 문서에서도 주입되므로 try/catch)
     await page.evaluateOnNewDocument(() => {
-      try { localStorage.setItem('qh_seen_howto', '1') } catch { /* ignore */ }
+      try {
+        localStorage.setItem('qh_seen_howto', '1')
+        localStorage.setItem('qh_nickname', 'tester') // 닉네임 프롬프트 억제
+      } catch { /* ignore */ }
     })
 
     for (const vp of [{ width: 375, height: 667 }, { width: 360, height: 740 }]) {
