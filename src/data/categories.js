@@ -5,6 +5,8 @@
 
 import quotes from './quotes.json' with { type: 'json' }
 import travel from './travel.json' with { type: 'json' }
+import business from './business.json' with { type: 'json' }
+import movies from './movies.json' with { type: 'json' }
 
 export const CATEGORIES = [
   {
@@ -29,6 +31,30 @@ export const CATEGORIES = [
       1: '짧은 표현 · 글자 절반 미리 공개 · 시도 8회',
       2: '중간 길이 · 몇 글자만 공개 · 시도 7회',
       3: '긴 표현 · 공개 없음 · 시도 6회',
+    },
+  },
+  {
+    id: 'business',
+    label: '비즈니스 영어',
+    emoji: '💼',
+    desc: '회의·이메일에서 쓰는 영어 표현',
+    data: business,
+    levelDesc: {
+      1: '짧은 표현 · 글자 절반 미리 공개 · 시도 8회',
+      2: '중간 길이 · 몇 글자만 공개 · 시도 7회',
+      3: '긴 표현 · 공개 없음 · 시도 6회',
+    },
+  },
+  {
+    id: 'movies',
+    label: '영화 명대사',
+    emoji: '🎬',
+    desc: '유명 영화 속 잊지 못할 한마디',
+    data: movies,
+    levelDesc: {
+      1: '짧은 대사 · 글자 절반 미리 공개 · 시도 8회',
+      2: '중간 길이 · 몇 글자만 공개 · 시도 7회',
+      3: '긴 대사 · 공개 없음 · 시도 6회',
     },
   },
 ]

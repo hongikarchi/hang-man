@@ -96,6 +96,12 @@
 .catBtn[data-category='travel'] .catEmoji {
   background: #e6f4fb; /* sky wash */
 }
+.catBtn[data-category='business'] .catEmoji {
+  background: #eaf3ec; /* sage wash */
+}
+.catBtn[data-category='movies'] .catEmoji {
+  background: #fbeef0; /* rose wash */
+}
 
 .catName {
   grid-area: name;

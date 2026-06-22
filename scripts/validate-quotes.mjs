@@ -31,6 +31,29 @@ const DATASETS = [
       3: { min: 76, max: 115 },
     },
   },
+  {
+    name: '비즈니스 영어(business)',
+    data: load('business.json'),
+    requireAuthor: false,
+    range: {
+      1: { min: 14, max: 40 },
+      2: { min: 41, max: 75 },
+      3: { min: 76, max: 115 },
+    },
+  },
+  {
+    // 영화 명대사는 본질적으로 짧다(예: Jaws "You're gonna need a bigger boat" 32자).
+    // 여행/명언 기준 L3 하한(76자+)을 쓰면 길이를 맞추려 채우기 단어를 넣어 '가짜 대사'가
+    // 되므로, 이 카테고리만 L3 하한을 낮춰(61자+) 짧은 진짜 명대사를 패딩 없이 담는다.
+    name: '영화 명대사(movies)',
+    data: load('movies.json'),
+    requireAuthor: true,
+    range: {
+      1: { min: 14, max: 40 },
+      2: { min: 41, max: 56 },
+      3: { min: 57, max: 115 },
+    },
+  },
 ]
 
 // 텍스트에 허용되는 비알파벳 문자 (스펙 §3.1 + 안전 구두점).
