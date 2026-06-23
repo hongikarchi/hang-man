@@ -9,6 +9,7 @@ import HowToPlay from './components/HowToPlay.jsx'
 import NicknamePrompt from './components/NicknamePrompt.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
 import { scoreForWin } from './lib/score.js'
+import { serializeProgress } from './hooks/useGame.js'
 import {
   getNickname,
   setNickname as persistNickname,
@@ -17,6 +18,12 @@ import {
   postScore,
   fetchScore,
 } from './lib/leaderboard.js'
+import {
+  loadLocalProgress,
+  saveLocalProgress,
+  fetchPlayed,
+  postPlayed,
+} from './lib/progress.js'
 import styles from './App.module.css'
 
 const SEEN_KEY = 'qh_seen_howto'
@@ -115,6 +122,55 @@ export default function App() {
     // gameState 변화에만 반응. 나머지 값은 WIN 커밋 시점에 읽음.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState])
+
+  // ---- 진행(푼 문제) 영속화: localStorage 1차 + 닉네임 서버 동기화 ----
+  const { hydratePlayed } = game.actions
+  const { playedIds, cycles, category, level, quote } = game.state
+
+  // (1) 마운트 시 localStorage 복원 — 같은 기기 재방문/익명 사용자 처리(서버 불필요).
+  //     reducer 병합은 멱등이라 StrictMode 2중 실행도 안전.
+  useEffect(() => {
+    const local = loadLocalProgress()
+    if (local) hydratePlayed(local)
+  }, [hydratePlayed])
+
+  // (2) 진행이 바뀔 때마다 localStorage 에 저장(진실의 원천 유지).
+  //     playedIds/cycles 가 새 라운드 시작·병합으로 바뀌면 직렬화해 보존.
+  //     ⚠ 첫 호출(마운트)은 건너뛴다 — 그 시점은 복원(1) 전의 빈 초기상태라, 저장하면
+  //     실제 진행을 빈 값으로 덮어쓴다(이펙트는 선언순 실행이라 복원이 아직 커밋 안 됨).
+  //     복원 dispatch 의 재렌더로 playedIds 가 바뀌면 그때(2번째 호출부터) 올바른 값 저장.
+  const skipFirstSave = useRef(true)
+  useEffect(() => {
+    if (skipFirstSave.current) { skipFirstSave.current = false; return }
+    saveLocalProgress(serializeProgress(game.state))
+    // 진행 객체 참조가 바뀔 때만(라운드 시작/병합). 직렬화는 12칸이라 가벼움.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playedIds, cycles])
+
+  // (3) 라운드 시작 시 닉네임 기준 서버 동기화 (있을 때만, 전부 fail-soft async).
+  //     - 방금 뽑힌 문제를 서버에 마킹(postPlayed)
+  //     - 그 (카테고리,레벨,사이클)의 서버 기록을 받아 union → 다음 NEXT_QUESTION 이 회피
+  //     quote.id 가 바뀔 때마다(= 새 라운드) 발동. 네트워크는 라운드 시작을 막지 않음.
+  const lastSyncedQuote = useRef(null)
+  useEffect(() => {
+    const nick = nickname.trim()
+    if (gameState !== 'PLAYING' || !nick || !category || !level || quote == null) return
+    // 닉네임을 키에 포함 → 라운드 중 로그인/닉 전환 시 새 정체성으로 재동기화.
+    // (중복 동기화 방지 — StrictMode/리렌더)
+    const key = `${nick}/${category}/${level}/${quote.id}`
+    if (lastSyncedQuote.current === key) return
+    lastSyncedQuote.current = key
+
+    const cycle = cycles[category][level]
+    postPlayed(nick, category, level, cycle, quote.id) // fire-and-forget
+    fetchPlayed(nick, category, level, cycle).then((ids) => {
+      if (ids && ids.length) {
+        hydratePlayed({ [category]: { [level]: { ids, cycle } } })
+      }
+    })
+    // quote.id/닉네임 전환에 반응(라운드·정체성 단위). 나머지는 그 시점 값으로 읽음.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote?.id, gameState, nickname])
 
   return (
     <div className={styles.app}>

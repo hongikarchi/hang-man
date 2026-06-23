@@ -37,9 +37,15 @@ function makeInitialState() {
     lastHintLetter: null,
     revealLetters: [], // 미리 공개된 글자들 (난이도)
     category: null, // 선택된 카테고리 id (null = 카테고리 선택 화면)
-    // 카테고리→레벨별 플레이한 문장 id 집합 (진행 추적).
+    // 카테고리→레벨별 "현재 사이클에" 플레이한 문장 id 집합 (진행 추적).
     playedIds: Object.fromEntries(
       CATEGORIES.map((c) => [c.id, { 1: new Set(), 2: new Set(), 3: new Set() }]),
+    ),
+    // 카테고리→레벨별 사이클 번호. 한 레벨의 문제를 전부 풀어 소진되면 +1 되고
+    // playedIds 가 비워진다. 서버 동기화(union)는 "현재 사이클"의 기록만 합쳐
+    // 소진-리셋 후에도 "한 사이클 안에서는 중복 없음"이 유지되게 한다.
+    cycles: Object.fromEntries(
+      CATEGORIES.map((c) => [c.id, { 1: 0, 2: 0, 3: 0 }]),
     ),
   }
 }
@@ -65,6 +71,11 @@ function initRound(state, level, opts = {}) {
       3: new Set(state.playedIds[catId][3]),
     },
   }
+  // cycles 사본 (불변성) — 소진 시 해당 레벨만 +1
+  const cycles = {
+    ...state.cycles,
+    [catId]: { ...state.cycles[catId] },
+  }
 
   let quote
   if (opts.forceQuoteId != null) {
@@ -72,7 +83,12 @@ function initRound(state, level, opts = {}) {
     if (!quote) throw new Error(`문장 id ${opts.forceQuoteId} 없음 (카테고리 ${catId})`)
   } else {
     const { quote: picked, resetPlayed } = pickQuote(pool, level, playedIds[catId][level])
-    if (resetPlayed) playedIds[catId][level] = new Set()
+    if (resetPlayed) {
+      // 레벨 소진 → 새 사이클 시작: 기록 비우고 사이클 번호 +1.
+      // (서버 union 이 이전 사이클 기록을 다시 끌어오지 않도록 cycle 로 분리.)
+      playedIds[catId][level] = new Set()
+      cycles[catId][level] = cycles[catId][level] + 1
+    }
     quote = picked
   }
   playedIds[catId][level].add(quote.id)
@@ -103,12 +119,86 @@ function initRound(state, level, opts = {}) {
     // wrongNonce 는 라운드 넘어가도 단조 증가 유지(리셋 안 함) — 항상 새 값 보장.
     revealLetters,
     playedIds,
+    cycles,
   }
 }
 
 /** 모든 letter 토큰이 correct 인가? (승리 조건, AC8) */
 function isAllCorrect(tokens) {
   return tokens.every((t) => t.type !== 'letter' || t.status === 'correct')
+}
+
+/**
+ * 외부(저장된 진행)에서 들어온 played 기록을 현재 상태에 병합한다.
+ * localStorage 복원(시작 시)과 서버 동기화(닉네임 로그인 후) 둘 다 이 함수로 수렴.
+ *
+ * 병합 규칙 (사이클 기준):
+ *  - 들어온 cycle > 현재 cycle  → 더 진행된 사이클. 그 레벨을 들어온 값으로 교체(채택).
+ *  - 들어온 cycle === 현재 cycle → 같은 사이클. id 합집합(union).
+ *  - 들어온 cycle < 현재 cycle  → 오래된 기록. 무시.
+ * 이렇게 해야 "소진→리셋(cycle++)" 후에도 이전 사이클 기록이 다시 끌려와 즉시
+ * 재소진되는 일이 없다(= 한 사이클 내 중복 없음 보장).
+ *
+ * @param {object} state
+ * @param {Record<string, Record<number, {ids:number[], cycle:number}>>} incoming
+ *   카테고리→레벨→{ids, cycle}. 일부만 있어도 됨(있는 항목만 병합).
+ * @returns {object} 새 state (playedIds/cycles 갱신). 변화 없으면 동일 참조.
+ */
+function mergeProgress(state, incoming) {
+  if (!incoming || typeof incoming !== 'object') return state
+  let changed = false
+  const playedIds = { ...state.playedIds }
+  const cycles = { ...state.cycles }
+
+  for (const catId of Object.keys(incoming)) {
+    // 알 수 없는 카테고리(데이터 변경 등)는 건너뜀 — 방어
+    if (!state.playedIds[catId] || !state.cycles[catId]) continue
+    const catIn = incoming[catId]
+    if (!catIn || typeof catIn !== 'object') continue
+
+    let catPlayed = null // 이 카테고리에서 변경 시에만 사본 생성(불필요 복사 방지)
+    let catCycles = null
+
+    for (const lvlKey of Object.keys(catIn)) {
+      const level = Number(lvlKey)
+      if (![1, 2, 3].includes(level)) continue
+      const entry = catIn[lvlKey]
+      if (!entry || typeof entry !== 'object') continue
+      const inCycle = Number(entry.cycle) || 0
+      const inIds = Array.isArray(entry.ids)
+        ? entry.ids.map(Number).filter(Number.isFinite)
+        : []
+      const curCycle = state.cycles[catId][level]
+      const curSet = state.playedIds[catId][level]
+
+      if (inCycle < curCycle) continue // 오래된 기록 무시
+
+      if (inCycle > curCycle) {
+        // 더 진행된 사이클 채택 — id 교체 + 사이클 올림
+        if (!catPlayed) catPlayed = { ...state.playedIds[catId] }
+        if (!catCycles) catCycles = { ...state.cycles[catId] }
+        catPlayed[level] = new Set(inIds)
+        catCycles[level] = inCycle
+        changed = true
+      } else {
+        // 같은 사이클 — 합집합. 새로 추가되는 id 가 있을 때만 갱신.
+        const merged = new Set(curSet)
+        let added = false
+        for (const id of inIds) if (!merged.has(id)) { merged.add(id); added = true }
+        if (added) {
+          if (!catPlayed) catPlayed = { ...state.playedIds[catId] }
+          catPlayed[level] = merged
+          changed = true
+        }
+      }
+    }
+
+    if (catPlayed) playedIds[catId] = catPlayed
+    if (catCycles) cycles[catId] = catCycles
+  }
+
+  if (!changed) return state // 멱등 — 동일 참조 반환(불필요 리렌더 방지)
+  return { ...state, playedIds, cycles }
 }
 
 /**
@@ -150,8 +240,28 @@ function pickHintLetter(tokens) {
   return letters[0]
 }
 
+/**
+ * 현재 진행을 저장/전송용 평면 형식으로 직렬화한다.
+ * { [catId]: { 1:{ids,cycle}, 2:{ids,cycle}, 3:{ids,cycle} } }
+ * (Set → 배열). localStorage 저장과 서버 POST(닉네임 동기화) 둘 다 이 형식을 쓴다.
+ * @param {object} state
+ */
+function serializeProgress(state) {
+  const out = {}
+  for (const catId of Object.keys(state.playedIds)) {
+    out[catId] = {}
+    for (const level of [1, 2, 3]) {
+      out[catId][level] = {
+        ids: [...state.playedIds[catId][level]],
+        cycle: state.cycles[catId][level],
+      }
+    }
+  }
+  return out
+}
+
 // reducer/헬퍼는 헤드리스 테스트를 위해 export (UI 없이 검증 가능).
-export { makeInitialState, initRound, isAllCorrect }
+export { makeInitialState, initRound, isAllCorrect, mergeProgress, serializeProgress }
 
 export function reducer(state, action) {
   switch (action.type) {
@@ -168,6 +278,11 @@ export function reducer(state, action) {
         state.level,
         { forceQuoteId: state.quote.id },
       )
+
+    case 'HYDRATE_PLAYED':
+      // 저장된/서버 진행을 병합 (localStorage 복원 + 닉네임 동기화 둘 다).
+      // 멱등 — 새 정보 없으면 동일 참조라 리렌더/재저장 루프 안 생김.
+      return mergeProgress(state, action.progress)
 
     case 'SET_CATEGORY': // 카테고리 선택 → 레벨 선택 화면 (INIT 유지)
       return { ...state, category: action.category }
@@ -359,6 +474,8 @@ export function useGame() {
   const nextQuestion = useCallback(() => dispatch({ type: 'NEXT_QUESTION' }), [])
   const restart = useCallback(() => dispatch({ type: 'RESTART' }), [])
   const backToLevels = useCallback(() => dispatch({ type: 'BACK_TO_LEVELS' }), [])
+  // 저장된/서버 진행 병합 (localStorage 복원 + 닉네임 동기화). progress 형식은 mergeProgress 참고.
+  const hydratePlayed = useCallback((progress) => dispatch({ type: 'HYDRATE_PLAYED', progress }), [])
 
   return {
     state,
@@ -378,6 +495,7 @@ export function useGame() {
       nextQuestion,
       restart,
       backToLevels,
+      hydratePlayed,
     },
     // raw dispatch (드래그 onDragEnd 등에서 PLACE 직접 호출용)
     dispatch,

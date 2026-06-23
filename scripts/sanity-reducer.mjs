@@ -3,6 +3,8 @@ import {
   reducer,
   makeInitialState,
   initRound,
+  mergeProgress,
+  serializeProgress,
 } from '../src/hooks/useGame.js'
 
 let pass = 0, fail = 0
@@ -345,6 +347,84 @@ console.log('\n--- 고정 커서 + 자동 이동 (주루룩 입력) ---')
   for (let i = 0; i < 7; i++) lz = place(lz, lzTok.index, lzWrong)
   ok(lz.gameState === 'LOSE', 'LOSE 도달(전제)')
   ok(lz.selectedBlankIndex === null, '★ LOSE → 커서 해제(null)')
+}
+
+console.log('\n--- 진행 저장: cycles + mergeProgress + serializeProgress ---')
+{
+  // 초기 상태에 cycles 가 모든 카테고리×레벨에 0 으로 존재
+  const init = makeInitialState()
+  ok(init.cycles && init.cycles.quotes && init.cycles.quotes[1] === 0,
+     'INIT: cycles 가 카테고리×레벨 0 으로 초기화')
+  ok(init.cycles.travel[3] === 0 && init.cycles.movies[2] === 0, 'INIT: 모든 카테고리 cycles 존재')
+
+  // serializeProgress: Set → {ids, cycle} 평면 형식
+  let s = initRound(makeInitialState(), 1, { forceQuoteId: 101 })
+  const ser = serializeProgress(s)
+  ok(ser.quotes[1].ids.includes(101) && ser.quotes[1].cycle === 0,
+     'serializeProgress: 푼 id + cycle 0 직렬화')
+  ok(Array.isArray(ser.quotes[2].ids) && ser.quotes[2].ids.length === 0, '안 푼 레벨은 빈 배열')
+
+  // ★ 핵심 증명: 레벨 소진 → cycle++ → 이전 사이클(cycle 0) 기록 주입은 무시돼야 함.
+  // L1 은 20문제. NEXT_QUESTION 으로 전부 돌리면 21번째에서 resetPlayed → cycle 1.
+  let prog = makeInitialState()
+  prog = initRound(prog, 1) // 1번째
+  const seenL1 = new Set([prog.quote.id])
+  for (let i = 1; i < 20; i++) {
+    prog = reducer(prog, { type: 'NEXT_QUESTION' })
+    seenL1.add(prog.quote.id)
+  }
+  ok(seenL1.size === 20, `L1 20문제 모두 서로 다름(소진 전): ${seenL1.size}/20`)
+  ok(prog.cycles.quotes[1] === 0, '20문제 도는 동안 cycle 은 0 유지')
+  const allL1Ids = [...seenL1]
+  // 21번째 → 소진 리셋 → cycle 1, playedIds 비워지고 새 문제 1개만
+  prog = reducer(prog, { type: 'NEXT_QUESTION' })
+  ok(prog.cycles.quotes[1] === 1, '★ 21번째(소진) → cycle 1 로 증가')
+  ok(prog.playedIds.quotes[1].size === 1, '소진 리셋 → playedIds 비워지고 새 문제 1개')
+
+  // 이제 이전 사이클(cycle 0)의 "20문제 전부"를 서버 동기화로 주입 → 무시돼야 한다.
+  const stale = mergeProgress(prog, { quotes: { 1: { ids: allL1Ids, cycle: 0 } } })
+  ok(stale === prog, '★ 이전 사이클(cycle 0) 기록 주입 → 무시(동일 참조). 재소진 안 일어남')
+  ok(stale.playedIds.quotes[1].size === 1, '★ 무시되어 현재 사이클 기록(1개) 그대로 — 19개 후보 살아있음')
+
+  // 같은 사이클 union: 다른 기기가 같은 cycle 1 에서 푼 id 들을 합침
+  const curId = [...prog.playedIds.quotes[1]][0]
+  const otherId = allL1Ids.find((id) => id !== curId)
+  const unioned = mergeProgress(prog, { quotes: { 1: { ids: [otherId], cycle: 1 } } })
+  ok(unioned !== prog, '같은 사이클 새 id union → 새 상태')
+  ok(unioned.playedIds.quotes[1].has(curId) && unioned.playedIds.quotes[1].has(otherId),
+     '★ 같은 사이클(cycle 1) union → 양쪽 id 모두 포함')
+  ok(unioned.cycles.quotes[1] === 1, 'union 시 cycle 유지(1)')
+
+  // 더 높은 사이클 채택: 들어온 cycle 이 더 크면 그 레벨을 교체 + 사이클 올림
+  const adopt = mergeProgress(prog, { quotes: { 1: { ids: [501, 502], cycle: 5 } } })
+  ok(adopt.cycles.quotes[1] === 5, '★ 더 높은 사이클(5) → 채택(cycle 올림)')
+  ok(adopt.playedIds.quotes[1].has(501) && adopt.playedIds.quotes[1].has(502) &&
+     !adopt.playedIds.quotes[1].has(curId),
+     '더 높은 사이클 → id 교체(이전 사이클 id 버림)')
+
+  // 멱등: 이미 있는 id 만 주입하면 동일 참조
+  const idem = mergeProgress(unioned, { quotes: { 1: { ids: [curId, otherId], cycle: 1 } } })
+  ok(idem === unioned, '★ 이미 있는 id 만 union → 동일 참조(멱등, 재저장 루프 방지)')
+
+  // 방어: 알 수 없는 카테고리/레벨/형식은 조용히 무시
+  ok(mergeProgress(prog, { nope: { 1: { ids: [1], cycle: 0 } } }) === prog, '알 수 없는 카테고리 무시')
+  ok(mergeProgress(prog, { quotes: { 9: { ids: [1], cycle: 0 } } }) === prog, '알 수 없는 레벨 무시')
+  ok(mergeProgress(prog, null) === prog, 'null progress 무시')
+  ok(mergeProgress(prog, { quotes: { 1: { ids: 'bad', cycle: 0 } } }) === prog, 'ids 가 배열 아니면 무시')
+
+  // 라운드트립: serialize → 새 상태에 merge → 같은 진행 복원
+  let rt = initRound(makeInitialState(), 2, { forceQuoteId: 201 })
+  rt = reducer(rt, { type: 'NEXT_QUESTION' }) // 2문제 플레이
+  const rtSer = serializeProgress(rt)
+  const fresh = mergeProgress(makeInitialState(), rtSer)
+  ok([...rt.playedIds.quotes[2]].every((id) => fresh.playedIds.quotes[2].has(id)) &&
+     fresh.playedIds.quotes[2].size === rt.playedIds.quotes[2].size,
+     '★ serialize → 새 상태 merge 라운드트립: 푼 문제 복원됨')
+
+  // cross-category 독립성: travel 주입이 quotes 에 안 샘
+  const cc = mergeProgress(makeInitialState(), { travel: { 1: { ids: [1101], cycle: 0 } } })
+  ok(cc.playedIds.travel[1].has(1101) && cc.playedIds.quotes[1].size === 0,
+     'mergeProgress 카테고리 독립(travel 주입이 quotes 에 안 섞임)')
 }
 
 console.log(`\n결과: ${pass} passed, ${fail} failed`)
