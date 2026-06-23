@@ -96,6 +96,8 @@ function initRound(state, level, opts = {}) {
     meaningRevealed: false,
     lastHintLetter: null,
     selectedLetter: null,
+    // 라운드 시작엔 커서 없음 — 사용자가 첫 빈칸을 탭해 "커서를 놓고", 그 뒤부터
+    // 카드만 연달아 탭하면 커서가 자동 전진하며 주루룩 채워진다(반복 탭 제거가 핵심).
     selectedBlankIndex: null,
     wrongEvent: null,
     // wrongNonce 는 라운드 넘어가도 단조 증가 유지(리셋 안 함) — 항상 새 값 보장.
@@ -107,6 +109,29 @@ function initRound(state, level, opts = {}) {
 /** 모든 letter 토큰이 correct 인가? (승리 조건, AC8) */
 function isAllCorrect(tokens) {
   return tokens.every((t) => t.type !== 'letter' || t.status === 'correct')
+}
+
+/**
+ * 다음 미해결 빈칸의 index 를 reading order(= token.index 오름차순)로 찾는다.
+ * "고정 커서 + 자동 이동": 정답 배치 후 커서를 옆 칸으로 자동 전진시켜
+ * "빈칸 한 번 누르고 카드를 연달아 누르면 주루룩 채워지는" 흐름을 만든다.
+ *
+ * @param {Token[]} tokens
+ * @param {number} from 직전에 배치한 빈칸 index (이 칸 "다음"부터 탐색)
+ * @returns {number|null} 다음 미해결 빈칸 index. 뒤쪽에 없으면 맨 앞으로 wrap.
+ *                        남은 빈칸이 하나도 없으면 null (WIN 직전이라 커서 불필요).
+ *
+ * token.index 는 원문 문자열 위치라 tokenize/groupIntoWords 모두에서 단조 증가 →
+ * 정렬 없이 "index > from 중 최소"가 곧 화면상 다음 칸이다. wrap 은 처음부터 최소.
+ */
+function nextUnsolved(tokens, from) {
+  const open = tokens.filter((t) => t.type === 'letter' && t.status !== 'correct')
+  if (open.length === 0) return null
+  // from 다음에 오는 첫 미해결 칸
+  const ahead = open.find((t) => t.index > from)
+  if (ahead) return ahead.index
+  // 뒤쪽에 없으면 맨 앞으로 한 바퀴 (사용자 결정: 끝 도달 시 첫 빈칸으로 wrap)
+  return open[0].index
 }
 
 /**
@@ -228,6 +253,10 @@ export function reducer(state, action) {
           t.letter === token.letter ? { ...t, status: 'correct' } : t,
         )
         const won = isAllCorrect(tokens)
+        // 고정 커서 자동 전진: 정답이면 커서를 다음 미해결 빈칸으로 옮겨,
+        // 카드만 연달아 눌러도 주루룩 채워지게 한다. (won 이면 커서 불필요 → null)
+        // 방금 채워진 같은-글자 칸들은 tokens(=갱신본)을 스캔하므로 자연히 건너뛴다.
+        const nextCursor = won ? null : nextUnsolved(tokens, blankIndex)
         return {
           ...state,
           tokens,
@@ -235,13 +264,14 @@ export function reducer(state, action) {
           // 오답 분기는 아무것도 안 채우므로 강조를 유지한다(여기서만 해제).
           lastHintLetter: null,
           selectedLetter: null,
-          selectedBlankIndex: null,
+          // 글자 선택은 항상 비우고(상호 배타), 빈칸 커서만 다음 칸으로 전진.
+          selectedBlankIndex: nextCursor,
           wrongEvent: null,
           gameState: won ? 'WIN' : 'PLAYING',
         }
       }
 
-      // 오답 (AC6): 채우지 않음. 시도 -1, 빨강 트리거, 선택 해제.
+      // 오답 (AC6): 채우지 않음. 시도 -1, 빨강 트리거.
       const remainingAttempts = state.remainingAttempts - 1
       const lost = remainingAttempts <= 0 // AC7
       const nonce = state.wrongNonce + 1
@@ -249,7 +279,9 @@ export function reducer(state, action) {
         ...state,
         remainingAttempts,
         selectedLetter: null,
-        selectedBlankIndex: null,
+        // 고정 커서: 오답이면 같은 칸에 커서를 유지해 바로 다른 카드로 재시도 가능.
+        // (LOSE 면 게임 종료라 커서 해제.)
+        selectedBlankIndex: lost ? null : blankIndex,
         wrongEvent: { index: blankIndex, nonce },
         wrongNonce: nonce,
         gameState: lost ? 'LOSE' : 'PLAYING',

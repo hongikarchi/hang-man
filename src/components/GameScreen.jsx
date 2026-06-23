@@ -131,11 +131,11 @@ export default function GameScreen({ game, onHelp }) {
               </span>
             ) : selectedBlankIndex != null ? (
               <span className={styles.instructActive}>
-                <b>빈칸</b> 선택됨 — 채울 <b>글자 카드</b>를 탭하세요
+                <b>글자 카드</b>를 탭하면 채워지고 <b>다음 칸으로 자동 이동</b> — 연달아 탭하세요
               </span>
             ) : (
               <span className={styles.instructIdle}>
-                <b>카드</b>나 <b>빈칸</b>을 탭해 채우세요 <span className={styles.cue}>▾</span>
+                <b>빈칸</b>이나 <b>카드</b>를 탭해 채우세요 <span className={styles.cue}>▾</span>
               </span>
             )}
             <span className={styles.metaRow}>

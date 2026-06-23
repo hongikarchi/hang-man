@@ -28,14 +28,15 @@ export default function HowToPlay({ onClose }) {
           <li>
             <span className={styles.stepNum}>1</span>
             <span>
-              아래 <b>글자 카드</b>를 탭해서 고르세요. (또는 드래그)
+              먼저 <b>빈칸을 한 번 탭</b>하면 <b>파란 커서</b>가 놓여요.
+              그다음 <b>글자 카드를 연달아 탭</b>하면 커서가 <b>다음 칸으로 자동 이동</b>하며 주루룩 채워져요.
             </span>
           </li>
           <li>
             <span className={styles.stepNum}>2</span>
             <span>
-              빈칸에 놓으면 <b>같은 숫자 칸이 모두 자동으로</b> 채워져요.
-              (예: 3=A로 정하면 모든 3칸에 A)
+              정답이면 <b>같은 숫자 칸이 모두 자동으로</b> 채워져요.
+              (예: 3=A로 정하면 모든 3칸에 A) · 다른 칸부터 풀고 싶으면 <b>그 빈칸을 탭</b>하면 커서가 이동해요.
             </span>
           </li>
           <li>

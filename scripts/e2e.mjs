@@ -236,11 +236,27 @@ async function main() {
     ok(amberAfterPlace === 0, '★ 다른 글자 배치 후 힌트 강조 사라짐')
 
     // 양방향: 빈칸 먼저 탭 → (리렌더 대기) → 정답 카드 탭 → 채워짐
+    // (고정 커서: 직전 배치로 이미 어떤 빈칸이 커서일 수 있음. 첫 빈칸 클릭이 토글-OFF
+    //  되면 한 번 더 눌러 "선택됨"을 보장한 뒤, 그 선택된 빈칸의 정답으로 카드 탭.)
     {
       const remBefore = (await readState(page)).remaining
-      // 남은 첫 빈칸의 cipher로 정답 글자 추론
+      // 1) 첫 빈칸을 "선택됨" 상태로 만든다(이미 커서면 한 번 더 눌러 다시 켬).
+      await page.evaluate(() => document.querySelector('[role="button"][aria-label*="빈칸"]').click())
+      await tick(220)
+      let sel = await page.evaluate(() =>
+        !!document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]'))
+      if (!sel) {
+        // 토글-OFF 됐다 → 같은 칸을 다시 눌러 선택 ON
+        await page.evaluate(() => document.querySelector('[role="button"][aria-label*="빈칸"]').click())
+        await tick(220)
+        sel = await page.evaluate(() =>
+          !!document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]'))
+      }
+      ok(sel, '빈칸 탭 → 선택 표시(aria-pressed)')
+      // 2) 선택된(커서) 빈칸의 cipher로 정답 글자 추론
       const info = await page.evaluate(() => {
-        const blank = document.querySelector('[role="button"][aria-label*="빈칸"]')
+        const blank = document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]')
+          || document.querySelector('[role="button"][aria-label*="빈칸"]')
         if (!blank) return null
         const cip = (blank.getAttribute('aria-label').match(/힌트\s+(\S+)/) || [])[1]
         const map = {}
@@ -250,13 +266,7 @@ async function main() {
         })
         return { answer: map[cip] }
       })
-      // 1) 빈칸 탭(선택)
-      await page.evaluate(() => document.querySelector('[role="button"][aria-label*="빈칸"]').click())
-      await tick(250) // React 커밋 대기 — 선택이 반영돼야 다음 탭이 배치가 됨
-      const sel = await page.evaluate(() =>
-        !!document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]'))
-      ok(sel, '빈칸 탭 → 선택 표시(aria-pressed)')
-      // 2) 정답 카드 탭(배치)
+      // 3) 정답 카드 탭(배치) → 커서 칸이 채워짐
       await page.evaluate((ans) => {
         const c = [...document.querySelectorAll('button')].find((b) => !b.disabled &&
           /^[A-Z]$/.test(b.querySelector('span')?.textContent?.trim() || '') &&
@@ -266,6 +276,56 @@ async function main() {
       await tick(300)
       const remAfter = (await readState(page)).remaining
       ok(remAfter < remBefore, `★ 빈칸 우선 → 카드 탭으로 채워짐 ${remBefore}→${remAfter}`)
+    }
+
+    // ===== 고정 커서 "주루룩": 빈칸 한 번만 탭하고, 그 뒤엔 카드만 연달아 탭 =====
+    // (커서가 자동 전진하므로 빈칸을 다시 누르지 않아도 계속 채워져야 한다.)
+    {
+      // 현재 선택된(커서) 빈칸이 없으면 첫 빈칸을 한 번 탭해 커서를 놓는다.
+      const hasCursor = await page.evaluate(() =>
+        !!document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]'))
+      if (!hasCursor) {
+        await page.evaluate(() => { const b = document.querySelector('[role="button"][aria-label*="빈칸"]'); if (b) b.click() })
+        await tick(220)
+      }
+      ok(
+        await page.evaluate(() => !!document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]')),
+        '주루룩: 커서(선택된 빈칸)가 놓임',
+      )
+      // 이후 빈칸은 절대 다시 클릭하지 않고, 커서 칸의 정답 카드만 연달아 2회 탭.
+      let streamPlacements = 0
+      const remStart = (await readState(page)).remaining
+      for (let i = 0; i < 2; i++) {
+        const remBeforeTap = (await readState(page)).remaining
+        const placed = await page.evaluate(() => {
+          // 커서(선택된 빈칸)의 정답 글자 카드를 찾아 탭. 빈칸 클릭은 하지 않는다.
+          const cursor = document.querySelector('[role="button"][aria-pressed="true"][aria-label*="빈칸"]')
+          if (!cursor) return false
+          const cip = (cursor.getAttribute('aria-label').match(/힌트\s+(\S+)/) || [])[1]
+          const map = {}
+          ;[...document.querySelectorAll('button[aria-label^="글자 "]')].forEach((b) => {
+            const m = b.getAttribute('aria-label').match(/글자\s+([A-Z]).*힌트\s+(\S+)/)
+            if (m) map[m[2]] = m[1].toLowerCase()
+          })
+          const ans = map[cip]
+          const card = [...document.querySelectorAll('button')].find((b) => !b.disabled &&
+            /^[A-Z]$/.test(b.querySelector('span')?.textContent?.trim() || '') &&
+            b.querySelector('span').textContent.trim().toLowerCase() === ans)
+          if (!card) return false
+          card.click()
+          return true
+        })
+        await tick(260)
+        // 결과 화면(WIN)으로 넘어갔으면 중단
+        if ((await readState(page)).heading) { if (placed) streamPlacements++; break }
+        const remAfterTap = (await readState(page)).remaining
+        if (placed && remAfterTap < remBeforeTap) streamPlacements++
+      }
+      ok(streamPlacements >= 1,
+         `★ 빈칸 재탭 없이 카드만 연달아 → 자동 전진하며 채워짐 (${streamPlacements}회)`)
+      const remEnd = (await readState(page)).heading ? 0 : (await readState(page)).remaining
+      ok((await readState(page)).heading != null || remEnd < remStart,
+         `주루룩 후 남은 빈칸 감소 또는 WIN (${remStart}→${remEnd})`)
     }
 
     // 오답 → 시도 감소. 자동채움이 켜졌으므로, 남은 첫 빈칸의 "정답"을 구하고
