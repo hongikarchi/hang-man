@@ -9,8 +9,24 @@ const MAX_NICK = 24
 const MAX_SCORE = 10_000_000
 
 export default async function handler(req, res) {
+  // GET /api/score?nickname=X — 그 닉네임의 현재 누적 점수 조회.
+  // 다른 기기에서 같은 닉네임으로 로그인 시 기존 최고기록을 불러오는 데 사용.
+  if (req.method === 'GET') {
+    const nickname = String(req.query?.nickname ?? '').trim().slice(0, MAX_NICK)
+    if (!nickname) return res.status(400).json({ error: 'nickname_required' })
+    try {
+      const sql = neon(process.env.DATABASE_URL)
+      const rows = await sql`SELECT score FROM scores WHERE nickname = ${nickname}`
+      // 없는 닉네임은 0점 (신규로 취급)
+      return res.status(200).json({ nickname, score: rows[0]?.score ?? 0 })
+    } catch (err) {
+      console.error('GET /api/score failed:', err)
+      return res.status(500).json({ error: 'internal' })
+    }
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
+    res.setHeader('Allow', 'GET, POST')
     return res.status(405).json({ error: 'method_not_allowed' })
   }
 

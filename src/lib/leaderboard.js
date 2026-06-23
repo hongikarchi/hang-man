@@ -59,6 +59,19 @@ export async function postScore(nickname, score) {
   }
 }
 
+// 특정 닉네임의 서버 누적 점수 조회 (다른 기기 로그인 시 기존 기록 불러오기용).
+// 실패하면 null 을 돌려준다 → 호출부는 로컬 값을 그대로 유지(절대 0으로 덮어쓰지 않음).
+export async function fetchScore(nickname) {
+  try {
+    const res = await fetch(`/api/score?nickname=${encodeURIComponent(nickname)}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return Number.isFinite(data?.score) ? data.score : null
+  } catch {
+    return null
+  }
+}
+
 // 리더보드 top-N. 어떤 실패에서도 [] 를 돌려준다(절대 throw/크래시 없음).
 export async function fetchLeaderboard(limit = 10) {
   try {

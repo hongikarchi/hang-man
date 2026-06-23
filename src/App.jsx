@@ -15,6 +15,7 @@ import {
   getTotal,
   setTotal as persistTotal,
   postScore,
+  fetchScore,
 } from './lib/leaderboard.js'
 import styles from './App.module.css'
 
@@ -51,10 +52,23 @@ export default function App() {
     }
   }
 
-  function saveNickname(name) {
+  async function saveNickname(name) {
     const clean = persistNickname(name)
     setNick(clean)
     setShowNick(false)
+    if (!clean) return
+    // 다른 기기에서 같은 닉네임으로 로그인 시 기존 기록을 불러온다.
+    // 서버 점수와 로컬 점수 중 큰 값으로 맞춘다(서버는 GREATEST라 일관).
+    const serverScore = await fetchScore(clean)
+    if (serverScore == null) return // 조회 실패 → 로컬 값 유지(0으로 덮어쓰지 않음)
+    const local = getTotal()
+    const merged = Math.max(local, serverScore)
+    if (merged !== local) {
+      setTotal(merged)
+      persistTotal(merged)
+    }
+    // 로컬이 서버보다 컸다면 서버에도 반영(이 기기에서 더 많이 쌓았을 수 있음).
+    if (merged > serverScore) postScore(clean, merged)
   }
 
   // ---- WIN 감지: INIT/PLAYING → WIN 전환 시 정확히 한 번 점수 적립 ----
