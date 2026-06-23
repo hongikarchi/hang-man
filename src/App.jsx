@@ -53,12 +53,26 @@ export default function App() {
   }
 
   async function saveNickname(name) {
+    // persistNickname 이 localStorage 를 덮어쓰기 전에 "이전 정체성"을 먼저 잡는다.
+    // (state 의 nickname 은 아직 이전 값 — setNick 리렌더 전이라 안전한 판별자.)
+    const prev = nickname.trim()
     const clean = persistNickname(name)
     setNick(clean)
     setShowNick(false)
     if (!clean) return
-    // 다른 기기에서 같은 닉네임으로 로그인 시 기존 기록을 불러온다.
-    // 서버 점수와 로컬 점수 중 큰 값으로 맞춘다(서버는 GREATEST라 일관).
+
+    // 정체성 전환 (alice → bob): 로컬 누적 총점은 "이전 사람" 것이므로 절대 물려주지 않는다.
+    // 새 닉네임의 서버 점수(없으면 0)로 통째로 교체. 합치지도, 이전 총점을 올리지도 않는다.
+    if (prev && prev !== clean) {
+      const serverScore = await fetchScore(clean)
+      const next = serverScore ?? 0 // 조회 실패/신규 → 0 (이전 닉의 점수를 끌고오지 않음)
+      setTotal(next)
+      persistTotal(next)
+      return
+    }
+
+    // 같은 닉네임 재확인 또는 익명→첫 닉 등록(prev 없음):
+    // 다른 기기/오프라인 누적과 합치는 것이 정당하다. 서버 GREATEST 와 일관.
     const serverScore = await fetchScore(clean)
     if (serverScore == null) return // 조회 실패 → 로컬 값 유지(0으로 덮어쓰지 않음)
     const local = getTotal()
@@ -69,6 +83,17 @@ export default function App() {
     }
     // 로컬이 서버보다 컸다면 서버에도 반영(이 기기에서 더 많이 쌓았을 수 있음).
     if (merged > serverScore) postScore(clean, merged)
+  }
+
+  // 로그아웃: 정체성/누적 총점을 비우고 닉네임 프롬프트를 다시 띄운다.
+  // (서버 점수는 닉네임 키로 남아있어, 같은 닉으로 재로그인하면 fetchScore 로 복구됨.)
+  function logout() {
+    persistNickname('')
+    persistTotal(0)
+    setNick('')
+    setTotal(0)
+    setLastEarned(0)
+    setShowNick(true)
   }
 
   // ---- WIN 감지: INIT/PLAYING → WIN 전환 시 정확히 한 번 점수 적립 ----
@@ -103,6 +128,7 @@ export default function App() {
               nickname={nickname}
               total={total}
               onEditNickname={() => setShowNick(true)}
+              onLogout={logout}
             />
           ) : (
             <LevelSelect

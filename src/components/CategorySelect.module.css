@@ -58,12 +58,19 @@
   border-color: var(--accent);
 }
 
+/* 닉네임 칩 + 로그아웃 — 가로로 나란히 (가운데 정렬) */
+.nickRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
 /* 닉네임 칩 — 탭하면 닉네임 변경 프롬프트 */
 .nickChip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 14px;
   padding: 7px 14px;
   border-radius: 999px;
   background: var(--accent-soft);
@@ -72,6 +79,23 @@
   font-size: 14px;
 }
 .nickChip:hover {
+  border-color: var(--accent);
+}
+
+/* 로그아웃 — 정체성/누적 점수 초기화 후 닉네임 프롬프트 재노출 */
+.logoutBtn {
+  flex: 0 0 auto;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1.5px solid var(--surface);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+}
+.logoutBtn:hover {
+  color: var(--accent);
   border-color: var(--accent);
 }
 .nickName {

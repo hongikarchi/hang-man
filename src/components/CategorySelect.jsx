@@ -12,6 +12,7 @@ export default function CategorySelect({
   nickname = '',
   total = 0,
   onEditNickname,
+  onLogout,
 }) {
   return (
     <div className={styles.wrap}>
@@ -30,10 +31,17 @@ export default function CategorySelect({
           영어 문장을 숫자 힌트로 추론하며 맞춰보세요.
         </p>
         {nickname && (
-          <button className={styles.nickChip} onClick={onEditNickname} aria-label="닉네임 변경">
-            <span className={styles.nickName}>👤 {nickname}</span>
-            <span className={styles.nickTotal}>{total}점</span>
-          </button>
+          <div className={styles.nickRow}>
+            <button className={styles.nickChip} onClick={onEditNickname} aria-label="닉네임 변경">
+              <span className={styles.nickName}>👤 {nickname}</span>
+              <span className={styles.nickTotal}>{total}점</span>
+            </button>
+            {onLogout && (
+              <button className={styles.logoutBtn} onClick={onLogout} aria-label="로그아웃">
+                로그아웃
+              </button>
+            )}
+          </div>
         )}
       </header>
 
