@@ -40,6 +40,9 @@ export default function ResultScreen({ game, lastEarned = 0, total = 0 }) {
           <button className={`${styles.btn} ${styles.ghost}`} onClick={actions.backToLevels}>
             레벨 선택
           </button>
+          <button className={`${styles.btn} ${styles.ghost}`} onClick={actions.backToCategories}>
+            카테고리 선택
+          </button>
         </div>
       </div>
     </div>
