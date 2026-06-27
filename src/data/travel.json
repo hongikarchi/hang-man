@@ -1,64 +1,1184 @@
 [
-  { "id": 1101, "text": "Where is the restroom?", "ko": "화장실이 어디에 있나요?", "level": 1 },
-  { "id": 1102, "text": "How much is this?", "ko": "이거 얼마예요?", "level": 1 },
-  { "id": 1103, "text": "Can I see the menu, please?", "ko": "메뉴판 좀 볼 수 있을까요?", "level": 1 },
-  { "id": 1104, "text": "I'd like to check in, please.", "ko": "체크인하고 싶어요.", "level": 1 },
-  { "id": 1105, "text": "Do you speak English?", "ko": "영어 하실 줄 아세요?", "level": 1 },
-  { "id": 1106, "text": "Could you help me, please?", "ko": "저 좀 도와주시겠어요?", "level": 1 },
-  { "id": 1107, "text": "Where can I buy a ticket?", "ko": "표는 어디에서 살 수 있나요?", "level": 1 },
-  { "id": 1108, "text": "Is this seat taken?", "ko": "이 자리에 누가 있나요?", "level": 1 },
-  { "id": 1109, "text": "Can I pay by card?", "ko": "카드로 계산해도 되나요?", "level": 1 },
-  { "id": 1110, "text": "The check, please.", "ko": "계산서 주세요.", "level": 1 },
-  { "id": 1111, "text": "Can I have a receipt?", "ko": "영수증 받을 수 있을까요?", "level": 1 },
-  { "id": 1112, "text": "Where is the bus stop?", "ko": "버스 정류장이 어디예요?", "level": 1 },
-  { "id": 1113, "text": "I am just looking, thanks.", "ko": "그냥 구경 중이에요, 감사해요.", "level": 1 },
-  { "id": 1114, "text": "Could you speak slowly?", "ko": "천천히 말씀해 주시겠어요?", "level": 1 },
-  { "id": 1115, "text": "One more, please.", "ko": "하나 더 주세요.", "level": 1 },
-  { "id": 1116, "text": "Is breakfast included?", "ko": "아침 식사가 포함되어 있나요?", "level": 1 },
-  { "id": 1117, "text": "Can I try this on?", "ko": "이거 입어 봐도 되나요?", "level": 1 },
-  { "id": 1118, "text": "Keep the change, please.", "ko": "거스름돈은 가지세요.", "level": 1 },
-  { "id": 1119, "text": "Where is the exit?", "ko": "출구가 어디인가요?", "level": 1 },
-  { "id": 1120, "text": "I would like some water.", "ko": "물 좀 주세요.", "level": 1 },
-
-  { "id": 1201, "text": "Could you tell me how to get to the station?", "ko": "역까지 어떻게 가는지 알려주시겠어요?", "level": 2 },
-  { "id": 1202, "text": "I have a reservation under the name of Kim.", "ko": "김이라는 이름으로 예약했어요.", "level": 2 },
-  { "id": 1203, "text": "Is there a pharmacy near here? I have a headache.", "ko": "근처에 약국이 있나요? 머리가 아파요.", "level": 2 },
-  { "id": 1204, "text": "What time does the museum open tomorrow morning?", "ko": "박물관은 내일 아침 몇 시에 여나요?", "level": 2 },
-  { "id": 1205, "text": "Could you take a picture of us in front of the gate?", "ko": "정문 앞에서 저희 사진 좀 찍어주시겠어요?", "level": 2 },
-  { "id": 1206, "text": "I would like to order the same thing as that table.", "ko": "저 테이블과 같은 걸로 주문하고 싶어요.", "level": 2 },
-  { "id": 1207, "text": "How long does it take to get to the airport?", "ko": "공항까지 가는 데 얼마나 걸리나요?", "level": 2 },
-  { "id": 1208, "text": "Can you recommend a good restaurant near the hotel?", "ko": "호텔 근처에 괜찮은 식당을 추천해 주시겠어요?", "level": 2 },
-  { "id": 1209, "text": "Excuse me, I think this is the wrong order.", "ko": "실례합니다, 주문이 잘못 나온 것 같아요.", "level": 2 },
-  { "id": 1210, "text": "Where should I transfer if I want to get downtown?", "ko": "시내로 가려면 어디에서 갈아타야 하나요?", "level": 2 },
-  { "id": 1211, "text": "Could I have the bill separately, please?", "ko": "계산서를 따로 받을 수 있을까요?", "level": 2 },
-  { "id": 1212, "text": "Do you have this same item in a smaller size?", "ko": "이거 더 작은 사이즈로 있나요?", "level": 2 },
-  { "id": 1213, "text": "How far is the city center from the airport?", "ko": "공항에서 시내 중심까지 얼마나 먼가요?", "level": 2 },
-  { "id": 1214, "text": "I would like to book a table for two tonight.", "ko": "오늘 밤 두 명 자리를 예약하고 싶어요.", "level": 2 },
-  { "id": 1215, "text": "Is there free wireless internet in the lobby?", "ko": "로비에 무료 무선 인터넷이 있나요?", "level": 2 },
-  { "id": 1216, "text": "Could you call a taxi for me to the airport, please?", "ko": "공항까지 가는 택시 좀 불러 주시겠어요?", "level": 2 },
-  { "id": 1217, "text": "What is the best way to get to the old town?", "ko": "구시가지로 가는 가장 좋은 방법이 뭔가요?", "level": 2 },
-  { "id": 1218, "text": "Could you please write down the address here for me?", "ko": "여기에 주소를 좀 적어 주시겠어요?", "level": 2 },
-  { "id": 1219, "text": "Excuse me, I think there is a mistake on this bill.", "ko": "실례지만, 이 계산서에 착오가 있는 것 같아요.", "level": 2 },
-  { "id": 1220, "text": "What time should we check out of the room?", "ko": "방은 몇 시에 체크아웃해야 하나요?", "level": 2 },
-
-  { "id": 1301, "text": "Excuse me, I think I left my bag on the bus. Where should I go to report a lost item?", "ko": "실례합니다, 버스에 가방을 두고 내린 것 같아요. 분실물은 어디에 신고해야 하나요?", "level": 3 },
-  { "id": 1302, "text": "Could you recommend a good local restaurant nearby? We would like to try some traditional food.", "ko": "근처에 괜찮은 현지 식당을 추천해 주시겠어요? 전통 음식을 먹어보고 싶어요.", "level": 3 },
-  { "id": 1303, "text": "I would like to change my reservation to a later date. Is there an extra charge for that?", "ko": "예약을 더 늦은 날짜로 변경하고 싶어요. 추가 요금이 있나요?", "level": 3 },
-  { "id": 1304, "text": "My room is too noisy and the air conditioner does not work. Could I move to another room?", "ko": "방이 너무 시끄럽고 에어컨이 작동하지 않아요. 다른 방으로 옮길 수 있을까요?", "level": 3 },
-  { "id": 1305, "text": "I am allergic to peanuts. Could you tell me if this dish contains any nuts at all?", "ko": "저는 땅콩 알레르기가 있어요. 이 요리에 견과류가 조금이라도 들어 있는지 알려주시겠어요?", "level": 3 },
-  { "id": 1306, "text": "Is there a bus that goes to the beach from here? And how often does it run on weekends?", "ko": "여기서 해변으로 가는 버스가 있나요? 주말에는 얼마나 자주 다니나요?", "level": 3 },
-  { "id": 1307, "text": "I missed my connecting flight because of the delay. Could you help me find another one?", "ko": "지연 때문에 연결 항공편을 놓쳤어요. 다른 항공편을 찾는 것 좀 도와주시겠어요?", "level": 3 },
-  { "id": 1308, "text": "This is my first time visiting this city. What places would you recommend for one day?", "ko": "이 도시는 처음 방문이에요. 하루 동안 가 볼 만한 곳을 추천해 주시겠어요?", "level": 3 },
-  { "id": 1309, "text": "Could I get a refund for this? It was broken when I opened the box at the hotel.", "ko": "이거 환불받을 수 있을까요? 호텔에서 상자를 열어 보니 깨져 있었어요.", "level": 3 },
-  { "id": 1310, "text": "The taxi meter seems to be running too fast. Could you stop here? I will walk the rest.", "ko": "택시 미터기가 너무 빨리 올라가는 것 같아요. 여기서 세워 주시겠어요? 나머지는 걸어갈게요.", "level": 3 },
-  { "id": 1311, "text": "I would like to exchange some money. Where is the nearest exchange counter from here?", "ko": "환전을 좀 하고 싶어요. 여기서 가장 가까운 환전소가 어디인가요?", "level": 3 },
-  { "id": 1312, "text": "We are looking for a quiet place to sit and rest. Is there a park somewhere nearby?", "ko": "앉아서 쉴 조용한 곳을 찾고 있어요. 근처에 공원이 있나요?", "level": 3 },
-  { "id": 1313, "text": "My phone battery is almost dead. Do you happen to have a charger that I could borrow?", "ko": "휴대폰 배터리가 거의 다 됐어요. 혹시 빌릴 수 있는 충전기가 있나요?", "level": 3 },
-  { "id": 1314, "text": "Could you tell me which platform the train to the coast leaves from this afternoon?", "ko": "오늘 오후 해안으로 가는 기차가 몇 번 승강장에서 출발하는지 알려주시겠어요?", "level": 3 },
-  { "id": 1315, "text": "We have only a few hours before our flight. What is the closest place worth visiting?", "ko": "비행기 시간까지 몇 시간밖에 없어요. 가장 가까운 가 볼 만한 곳이 어디인가요?", "level": 3 },
-  { "id": 1316, "text": "I booked a room with a sea view, but this one faces the parking lot. Could you check it?", "ko": "바다 전망 방을 예약했는데 이 방은 주차장이 보여요. 확인해 주시겠어요?", "level": 3 },
-  { "id": 1317, "text": "Is it possible to store our luggage here until the evening? We check out at noon today.", "ko": "저녁까지 짐을 여기 맡길 수 있을까요? 오늘 정오에 체크아웃해요.", "level": 3 },
-  { "id": 1318, "text": "The ticket machine is not accepting my card. Could you show me how to buy a ticket here?", "ko": "발권기가 제 카드를 받지 않아요. 여기서 표 사는 법을 보여주시겠어요?", "level": 3 },
-  { "id": 1319, "text": "We would love to see the sunset tonight. Which spot in the city has the best view of it?", "ko": "오늘 밤 일몰을 꼭 보고 싶어요. 도시에서 일몰이 가장 잘 보이는 곳은 어디인가요?", "level": 3 },
-  { "id": 1320, "text": "Excuse me, could you let me know when we reach the central market? I am not familiar here.", "ko": "실례지만 중앙 시장에 도착하면 알려주시겠어요? 여기가 익숙하지 않아서요.", "level": 3 }
+  {
+    "id": 1101,
+    "text": "I feel nauseous",
+    "ko": "멀미가 나요",
+    "level": 1
+  },
+  {
+    "id": 1102,
+    "text": "Keep the change.",
+    "ko": "잔돈은 괜찮습니다.",
+    "level": 1
+  },
+  {
+    "id": 1103,
+    "text": "Can I go standby?",
+    "ko": "예약 대기를 할수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1104,
+    "text": "Check in, please.",
+    "ko": "체크인 부탁드려요",
+    "level": 1
+  },
+  {
+    "id": 1105,
+    "text": "I missed my stop.",
+    "ko": "내릴 정류장을 놓쳤어요.",
+    "level": 1
+  },
+  {
+    "id": 1106,
+    "text": "May I go through?",
+    "ko": "좀 지나가도 될까요?",
+    "level": 1
+  },
+  {
+    "id": 1107,
+    "text": "I'm just traveling",
+    "ko": "여행중입니다",
+    "level": 1
+  },
+  {
+    "id": 1108,
+    "text": "May I go in first?",
+    "ko": "제가 먼저 들어가도 될까요?",
+    "level": 1
+  },
+  {
+    "id": 1109,
+    "text": "Can I check in now?",
+    "ko": "지금 체크인 할 수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1110,
+    "text": "I'm here for a trip",
+    "ko": "여행하러 왔습니다",
+    "level": 1
+  },
+  {
+    "id": 1111,
+    "text": "Is there a layover?",
+    "ko": "경유지가 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1112,
+    "text": "Walk down the aisle",
+    "ko": "통로를 따라 쭉 가세요",
+    "level": 1
+  },
+  {
+    "id": 1113,
+    "text": "A twin room, please.",
+    "ko": "트윈룸으로 주세요.",
+    "level": 1
+  },
+  {
+    "id": 1114,
+    "text": "Is there a spa here?",
+    "ko": "여기에 스파가 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1115,
+    "text": "Why is the bus late?",
+    "ko": "버스가 왜 이렇게 안 오죠?",
+    "level": 1
+  },
+  {
+    "id": 1116,
+    "text": "Can I change my seat?",
+    "ko": "좌석을 바꿔도 되나요?",
+    "level": 1
+  },
+  {
+    "id": 1117,
+    "text": "Can I check in early?",
+    "ko": "일찍 체크인 할 수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1118,
+    "text": "How long is the ride?",
+    "ko": "탑승 시간이 얼마나 되나요?",
+    "level": 1
+  },
+  {
+    "id": 1119,
+    "text": "How much is the fare?",
+    "ko": "요금이 얼마인가요?",
+    "level": 1
+  },
+  {
+    "id": 1120,
+    "text": "I'm checking one bag.",
+    "ko": "가방 하나 부칠겁니다",
+    "level": 1
+  },
+  {
+    "id": 1121,
+    "text": "I've finished my meal",
+    "ko": "식사 끝났습니다",
+    "level": 1
+  },
+  {
+    "id": 1122,
+    "text": "My baggage is damaged",
+    "ko": "제 짐이 손상되었어요",
+    "level": 1
+  },
+  {
+    "id": 1123,
+    "text": "Please check my seat.",
+    "ko": "좌석 좀 확인해 주세요",
+    "level": 1
+  },
+  {
+    "id": 1124,
+    "text": "This is carry-on bag.",
+    "ko": "이것은 휴대할 가방입니다",
+    "level": 1
+  },
+  {
+    "id": 1125,
+    "text": "When are you leaving?",
+    "ko": "언제 출발하세요?",
+    "level": 1
+  },
+  {
+    "id": 1126,
+    "text": "When will you return?",
+    "ko": "언제 돌아오실건가요?",
+    "level": 1
+  },
+  {
+    "id": 1127,
+    "text": "Can I borrow your pen?",
+    "ko": "펜 좀 빌릴수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1128,
+    "text": "Can I charge my phone?",
+    "ko": "휴대폰을 충전할 수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1129,
+    "text": "Can I have some water?",
+    "ko": "물 좀 주시겠어요?",
+    "level": 1
+  },
+  {
+    "id": 1130,
+    "text": "Can I recline my seat?",
+    "ko": "좌석을 뒤로 젖혀도 되나요?",
+    "level": 1
+  },
+  {
+    "id": 1131,
+    "text": "Can you go any faster?",
+    "ko": "좀 더 빨리 갈 수는 없나요?",
+    "level": 1
+  },
+  {
+    "id": 1132,
+    "text": "I'd like a quiet room.",
+    "ko": "조용한 방으로 부탁합니다.",
+    "level": 1
+  },
+  {
+    "id": 1133,
+    "text": "I'm staying for a week",
+    "ko": "일주일간 체류할겁니다",
+    "level": 1
+  },
+  {
+    "id": 1134,
+    "text": "Is breakfast included?",
+    "ko": "조식 포함인가요?",
+    "level": 1
+  },
+  {
+    "id": 1135,
+    "text": "One way or round trip?",
+    "ko": "편도로 드릴까요 왕복으로 드릴까요?",
+    "level": 1
+  },
+  {
+    "id": 1136,
+    "text": "Where is the bus stop?",
+    "ko": "버스 정류장이 어디 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1137,
+    "text": "Do you go to Hyde Park?",
+    "ko": "하이드파크에 갑니까?",
+    "level": 1
+  },
+  {
+    "id": 1138,
+    "text": "How long will you stay?",
+    "ko": "얼마나 머무실겁니까?",
+    "level": 1
+  },
+  {
+    "id": 1139,
+    "text": "It's under Ilsoon Yoon.",
+    "ko": "윤일순으로 예약했어요.",
+    "level": 1
+  },
+  {
+    "id": 1140,
+    "text": "Open the trunk, please.",
+    "ko": "트렁크 좀 열어주세요.",
+    "level": 1
+  },
+  {
+    "id": 1141,
+    "text": "Please let me out here.",
+    "ko": "여기서 내려주세요.",
+    "level": 1
+  },
+  {
+    "id": 1142,
+    "text": "What time is check out?",
+    "ko": "체크아웃 시간은 몇 시죠?",
+    "level": 1
+  },
+  {
+    "id": 1143,
+    "text": "Where should I get off?",
+    "ko": "어디서 내려야 하나요?",
+    "level": 1
+  },
+  {
+    "id": 1144,
+    "text": "Can you stop over there?",
+    "ko": "저기에 세워주실래요?",
+    "level": 1
+  },
+  {
+    "id": 1145,
+    "text": "How long is the layover?",
+    "ko": "경유지에서얼마나 대기하나요?",
+    "level": 1
+  },
+  {
+    "id": 1146,
+    "text": "How much is the deposit?",
+    "ko": "보증금은 얼마인가요?",
+    "level": 1
+  },
+  {
+    "id": 1147,
+    "text": "May I have a subway map?",
+    "ko": "지하철 노선도 좀 얻을 수 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1148,
+    "text": "What's the arrival time?",
+    "ko": "도착 시간은 언제 인가요?",
+    "level": 1
+  },
+  {
+    "id": 1149,
+    "text": "What's the weight limit?",
+    "ko": "무게제한이 얼마죠?",
+    "level": 1
+  },
+  {
+    "id": 1150,
+    "text": "When is the meal served?",
+    "ko": "기내식은 언제 제공되나요?",
+    "level": 1
+  },
+  {
+    "id": 1151,
+    "text": "When is the next flight?",
+    "ko": "다음 비행기는 언제 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1152,
+    "text": "Which bus goes downtown?",
+    "ko": "몇 번 버스가 시내로 가나요?",
+    "level": 1
+  },
+  {
+    "id": 1153,
+    "text": "Why is boarding delayed?",
+    "ko": "왜 탑승이 늦어지고 있나요?",
+    "level": 1
+  },
+  {
+    "id": 1154,
+    "text": "You should get off here.",
+    "ko": "여기서 내리세요.",
+    "level": 1
+  },
+  {
+    "id": 1201,
+    "text": "Can I take this on board?",
+    "ko": "이거 휴대 가능한가요?",
+    "level": 2
+  },
+  {
+    "id": 1202,
+    "text": "How many stops from here?",
+    "ko": "여기서 몇 정거장인가요?",
+    "level": 2
+  },
+  {
+    "id": 1203,
+    "text": "I can't connect to Wi-Fi.",
+    "ko": "와이파이가 안 돼요.",
+    "level": 2
+  },
+  {
+    "id": 1204,
+    "text": "I got on the wrong train.",
+    "ko": "열차를 잘못 탔어요.",
+    "level": 2
+  },
+  {
+    "id": 1205,
+    "text": "I think I lost my baggage",
+    "ko": "제 짐을 잃어버린것 같아요",
+    "level": 2
+  },
+  {
+    "id": 1206,
+    "text": "I'd like to skip the meal",
+    "ko": "저는 안 먹겠습니다",
+    "level": 2
+  },
+  {
+    "id": 1207,
+    "text": "Is this your first visit?",
+    "ko": "처음 방문이신가요?",
+    "level": 2
+  },
+  {
+    "id": 1208,
+    "text": "When does boarding begin?",
+    "ko": "탑승은 언제 시작하나요?",
+    "level": 2
+  },
+  {
+    "id": 1209,
+    "text": "Where can I buy a ticket?",
+    "ko": "표는 어디에서 구입하나요?",
+    "level": 2
+  },
+  {
+    "id": 1210,
+    "text": "Where can I get a ticket?",
+    "ko": "표는 어디서 살 수 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1211,
+    "text": "Which line goes downtown?",
+    "ko": "몇 호선이 시내로 가나요?",
+    "level": 2
+  },
+  {
+    "id": 1212,
+    "text": "Can I buy duty-free items?",
+    "ko": "면세품을 살수 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1213,
+    "text": "Can I get a sleeping mask?",
+    "ko": "수면용 안대 좀 받을 수 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1214,
+    "text": "Do you need to reschedule?",
+    "ko": "일정을 변경해 드릴까요?",
+    "level": 2
+  },
+  {
+    "id": 1215,
+    "text": "I want to declare my watch",
+    "ko": "시계를 신고하고 싶어요",
+    "level": 2
+  },
+  {
+    "id": 1216,
+    "text": "Is this the gate to Paris?",
+    "ko": "여기가 파리행 탑승구인가요?",
+    "level": 2
+  },
+  {
+    "id": 1217,
+    "text": "Please remain in your seat",
+    "ko": "좌석에서 기다려 주세요",
+    "level": 2
+  },
+  {
+    "id": 1218,
+    "text": "What's the Wi-Fi password?",
+    "ko": "와이파이 비밀번호가 뭔가요?",
+    "level": 2
+  },
+  {
+    "id": 1219,
+    "text": "Which gate should I go to?",
+    "ko": "몇번 탑승구로 가야합니까?",
+    "level": 2
+  },
+  {
+    "id": 1220,
+    "text": "You have to throw it away.",
+    "ko": "그것은 버리셔야합니다",
+    "level": 2
+  },
+  {
+    "id": 1221,
+    "text": "Can I take the next flight?",
+    "ko": "다음 비행기에 탈수 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1222,
+    "text": "Did you make a reservation?",
+    "ko": "예약을 하셨나요?",
+    "level": 2
+  },
+  {
+    "id": 1223,
+    "text": "I have something to declare",
+    "ko": "신고할 물건이 있습니다",
+    "level": 2
+  },
+  {
+    "id": 1224,
+    "text": "I'd like to change my room.",
+    "ko": "방을 바꾸고 싶습니다.",
+    "level": 2
+  },
+  {
+    "id": 1225,
+    "text": "I'm here to visit my friend",
+    "ko": "친구를 만나러 왔습니다",
+    "level": 2
+  },
+  {
+    "id": 1226,
+    "text": "Is there a non-stop flight?",
+    "ko": "직항편이 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1227,
+    "text": "Please turn off your laptop",
+    "ko": "노트북을 꺼주세요",
+    "level": 2
+  },
+  {
+    "id": 1228,
+    "text": "What's your departure date?",
+    "ko": "출발날짜가 언제인가요?",
+    "level": 2
+  },
+  {
+    "id": 1229,
+    "text": "Where can I get my baggage?",
+    "ko": "제 수하물은 어디서 찾나요?",
+    "level": 2
+  },
+  {
+    "id": 1230,
+    "text": "Where would you like to go?",
+    "ko": "어디까지 가시나요?",
+    "level": 2
+  },
+  {
+    "id": 1231,
+    "text": "Which class would you like?",
+    "ko": "좌석등급은 어떤걸로 하시겠어요?",
+    "level": 2
+  },
+  {
+    "id": 1232,
+    "text": "what is your flight number?",
+    "ko": "항공기 번호가 무엇인가요?",
+    "level": 2
+  },
+  {
+    "id": 1233,
+    "text": "Can you take out my baggage?",
+    "ko": "짐 좀 꺼내주실래요?",
+    "level": 2
+  },
+  {
+    "id": 1234,
+    "text": "Could you slow down, please?",
+    "ko": "속도 좀 줄여 주실래요?",
+    "level": 2
+  },
+  {
+    "id": 1235,
+    "text": "Give me the earliest ticket.",
+    "ko": "가장 빨리 출발하는 표로 주세요.",
+    "level": 2
+  },
+  {
+    "id": 1236,
+    "text": "How often does the bus come?",
+    "ko": "버스가 얼마나 자주 오나요?",
+    "level": 2
+  },
+  {
+    "id": 1237,
+    "text": "I don't feel like eating now",
+    "ko": "지금은 먹고싶지 않아요",
+    "level": 2
+  },
+  {
+    "id": 1238,
+    "text": "I missed my flight to Seoul.",
+    "ko": "서울행 비행기를 놓쳤어요",
+    "level": 2
+  },
+  {
+    "id": 1239,
+    "text": "I'd like a room with a view.",
+    "ko": "전망이 좋은 방으로 부탁합니다.",
+    "level": 2
+  },
+  {
+    "id": 1240,
+    "text": "I'd like some coffee, please",
+    "ko": "커피 좀 주세요",
+    "level": 2
+  },
+  {
+    "id": 1241,
+    "text": "My stomach doesn't feel good",
+    "ko": "속이 좀 안 좋아요",
+    "level": 2
+  },
+  {
+    "id": 1242,
+    "text": "Please fasten your seat belt",
+    "ko": "좌석벨트를 착용해 주세요",
+    "level": 2
+  },
+  {
+    "id": 1243,
+    "text": "We will begin boarding soon.",
+    "ko": "곧 탑승을 시작하겠습니다",
+    "level": 2
+  },
+  {
+    "id": 1244,
+    "text": "Where are you going to stay?",
+    "ko": "어디에 머물 예정입니까?",
+    "level": 2
+  },
+  {
+    "id": 1245,
+    "text": "Where do I have to transfer?",
+    "ko": "어디에서 갈아타야 하나요?",
+    "level": 2
+  },
+  {
+    "id": 1246,
+    "text": "Can I go to the restroom now?",
+    "ko": "지금 화장실에 가도 돼요?",
+    "level": 2
+  },
+  {
+    "id": 1247,
+    "text": "Can you come with me, please?",
+    "ko": "저를 따라 오시겠어요?",
+    "level": 2
+  },
+  {
+    "id": 1248,
+    "text": "Can you help me with my bags?",
+    "ko": "가방 드는것좀 도와주시겠어요?",
+    "level": 2
+  },
+  {
+    "id": 1249,
+    "text": "How long will you be staying?",
+    "ko": "얼마 동안 묵으실 건가요?",
+    "level": 2
+  },
+  {
+    "id": 1250,
+    "text": "How many bags will you check?",
+    "ko": "가방 몇개 부치세요?",
+    "level": 2
+  },
+  {
+    "id": 1251,
+    "text": "How much is the extra charge?",
+    "ko": "추가요금이 얼마에요?",
+    "level": 2
+  },
+  {
+    "id": 1252,
+    "text": "I missed my connecting flight",
+    "ko": "갈아탈 비행기를 놓쳤어요",
+    "level": 2
+  },
+  {
+    "id": 1253,
+    "text": "I'd like to check-in, please.",
+    "ko": "체크인 하려고 합니다.",
+    "level": 2
+  },
+  {
+    "id": 1254,
+    "text": "I'd like to sit in the front.",
+    "ko": "앞쪽 좌석에 앉고싶어요",
+    "level": 2
+  },
+  {
+    "id": 1255,
+    "text": "I'll stay for about five days",
+    "ko": "약 5일간 머물겁니다",
+    "level": 2
+  },
+  {
+    "id": 1256,
+    "text": "It's over there by the window",
+    "ko": "저기 창가쪽 좌석입니다",
+    "level": 2
+  },
+  {
+    "id": 1257,
+    "text": "It's over there on the aisle.",
+    "ko": "저기 통로쪽 좌석입니다",
+    "level": 2
+  },
+  {
+    "id": 1258,
+    "text": "May I see your boarding pass?",
+    "ko": "탑승권을 보여주시겠어요?",
+    "level": 2
+  },
+  {
+    "id": 1259,
+    "text": "Please put up your tray table",
+    "ko": "접이식 테이블을 접어주세요",
+    "level": 2
+  },
+  {
+    "id": 1260,
+    "text": "We will be taking off shortly",
+    "ko": "잠시후 이륙합니다",
+    "level": 2
+  },
+  {
+    "id": 1261,
+    "text": "What do you have in your bag?",
+    "ko": "가방에 무엇이 들어있나요?",
+    "level": 2
+  },
+  {
+    "id": 1262,
+    "text": "What time does the bus leave?",
+    "ko": "버스가 몇 시에 출발하나요?",
+    "level": 2
+  },
+  {
+    "id": 1263,
+    "text": "Where should I go to declare?",
+    "ko": "세관신고하려면 어디로 가야하나요?",
+    "level": 2
+  },
+  {
+    "id": 1264,
+    "text": "can I have a blanket, please?",
+    "ko": "담요 좀 갖다 주실래요?",
+    "level": 2
+  },
+  {
+    "id": 1265,
+    "text": "A ticket to City Hall, please.",
+    "ko": "시청 표 한 장 주세요.",
+    "level": 2
+  },
+  {
+    "id": 1266,
+    "text": "Are there any seats available.",
+    "ko": "이용 가능한 좌석이 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1267,
+    "text": "How many stops to Wall Street?",
+    "ko": "월스트리트는 몇 정거장 남았나요?",
+    "level": 2
+  },
+  {
+    "id": 1269,
+    "text": "I'll get off at the next stop.",
+    "ko": "다음 정류장에서 내릴게요.",
+    "level": 2
+  },
+  {
+    "id": 1270,
+    "text": "I'll stay at my friend's place",
+    "ko": "친구집네 머물겁니다",
+    "level": 2
+  },
+  {
+    "id": 1271,
+    "text": "Is there a bus going downtown?",
+    "ko": "시내로 가는 버스가 있나요?",
+    "level": 2
+  },
+  {
+    "id": 1272,
+    "text": "My baggage hasn't come out yet",
+    "ko": "제짐이 아직 나오지 않았어요",
+    "level": 2
+  },
+  {
+    "id": 1273,
+    "text": "Please take me to the airport.",
+    "ko": "공항으로 데려다 주세요.",
+    "level": 2
+  },
+  {
+    "id": 1274,
+    "text": "What kind of room do you want?",
+    "ko": "어떤 방을 원하세요?",
+    "level": 2
+  },
+  {
+    "id": 1276,
+    "text": "When would you like to return?",
+    "ko": "언제 돌아오고 싶으세요?",
+    "level": 2
+  },
+  {
+    "id": 1277,
+    "text": "Where is the transfer counter?",
+    "ko": "환승 수속대는 어디인가요?",
+    "level": 2
+  },
+  {
+    "id": 1278,
+    "text": "You have a layover in Chicago.",
+    "ko": "시카고를 경유하시게 됩니다",
+    "level": 2
+  },
+  {
+    "id": 1279,
+    "text": "How much is the fare to Boston?",
+    "ko": "보스톤까지 요금이 얼마인가요?",
+    "level": 2
+  },
+  {
+    "id": 1280,
+    "text": "I have booked my flight online.",
+    "ko": "항공권을 온라인으로 예약했어요",
+    "level": 2
+  },
+  {
+    "id": 1281,
+    "text": "I'd like to make a reservation.",
+    "ko": "예약을 하고 싶습니다.",
+    "level": 2
+  },
+  {
+    "id": 1282,
+    "text": "What time does the train leave?",
+    "ko": "열차가 몇 시에 출발하나요?",
+    "level": 2
+  },
+  {
+    "id": 1283,
+    "text": "What's your reservation number?",
+    "ko": "예약번호가 어떻게 되나요?",
+    "level": 2
+  },
+  {
+    "id": 1284,
+    "text": "When are you planning to leave?",
+    "ko": "언제 출발 예정이신가요?",
+    "level": 2
+  },
+  {
+    "id": 1285,
+    "text": "Which stop should I get off at?",
+    "ko": "어느 역에서 내려야 하나요?",
+    "level": 2
+  },
+  {
+    "id": 1286,
+    "text": "Would you like beef or chicken?",
+    "ko": "소고기와 닭고기중 어떤걸 원하세요?",
+    "level": 2
+  },
+  {
+    "id": 1301,
+    "text": "Can you help me find my baggage?",
+    "ko": "짐 찾는것좀 조와주실래요?",
+    "level": 3
+  },
+  {
+    "id": 1302,
+    "text": "Do you have any seats available?",
+    "ko": "이용 가능한 좌석이 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1303,
+    "text": "Do you have anything to declare?",
+    "ko": "신고하실 물건이 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1304,
+    "text": "I can't find my baggage anywhere",
+    "ko": "짐을 어디서도 찾을수가 없어요",
+    "level": 3
+  },
+  {
+    "id": 1305,
+    "text": "I'd like to book a room, please.",
+    "ko": "방을 예약하려고 하는데요.",
+    "level": 3
+  },
+  {
+    "id": 1306,
+    "text": "I'd like to leave one day later.",
+    "ko": "하루 늦게 출발하고싶습니다",
+    "level": 3
+  },
+  {
+    "id": 1307,
+    "text": "I'd like to sit with my company.",
+    "ko": "일행과 함께 앉고싶어요",
+    "level": 3
+  },
+  {
+    "id": 1308,
+    "text": "I'd like to stay one more night.",
+    "ko": "하루 더 숙박하고 싶어요.",
+    "level": 3
+  },
+  {
+    "id": 1309,
+    "text": "One ticket to City Hall, please.",
+    "ko": "시청까지 한 장 주세요.",
+    "level": 3
+  },
+  {
+    "id": 1310,
+    "text": "Take me to this address, please.",
+    "ko": "이 주소로 데려다 주세요.",
+    "level": 3
+  },
+  {
+    "id": 1311,
+    "text": "Where is the baggage claim area?",
+    "ko": "수하물 찾는곳이 어디죠?",
+    "level": 3
+  },
+  {
+    "id": 1312,
+    "text": "Which line should I transfer to?",
+    "ko": "몇 호선으로 갈아타야 하나요?",
+    "level": 3
+  },
+  {
+    "id": 1313,
+    "text": "You have to pay an extra charge.",
+    "ko": "추가요금을 내셔야 합니다",
+    "level": 3
+  },
+  {
+    "id": 1314,
+    "text": "You should go to the other side.",
+    "ko": "반대편으로 가셔야 합니다.",
+    "level": 3
+  },
+  {
+    "id": 1315,
+    "text": "Can You change your seat with me?",
+    "ko": "저와 자리를 바꿔 주실수 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1316,
+    "text": "Can you tell me where to get off?",
+    "ko": "어디서 내려야 할지 알려 주실래요?",
+    "level": 3
+  },
+  {
+    "id": 1317,
+    "text": "Do you have any baggage to check?",
+    "ko": "부칠 가방 있으세요?",
+    "level": 3
+  },
+  {
+    "id": 1318,
+    "text": "I have made a reservation online.",
+    "ko": "온라인으로 예약했습니다.",
+    "level": 3
+  },
+  {
+    "id": 1319,
+    "text": "I'd like to reschedule my flight.",
+    "ko": "항공편 시간을 변경하고싶어요",
+    "level": 3
+  },
+  {
+    "id": 1320,
+    "text": "May I see your baggage claim tag?",
+    "ko": "수하물 표를 보여주실래요?",
+    "level": 3
+  },
+  {
+    "id": 1321,
+    "text": "What's the purpose of your visit?",
+    "ko": "무슨 목적으로 방문하셨나요?",
+    "level": 3
+  },
+  {
+    "id": 1322,
+    "text": "You can't take this on the plane.",
+    "ko": "이것은 기내 반입이 안됩니다",
+    "level": 3
+  },
+  {
+    "id": 1323,
+    "text": "Can I change to an earlier flight.",
+    "ko": "더 이른 항공편으로 바꿀수 있을까요?",
+    "level": 3
+  },
+  {
+    "id": 1324,
+    "text": "Can you put this bag in the trunk?",
+    "ko": "이 가방을 넣어주실래요?",
+    "level": 3
+  },
+  {
+    "id": 1325,
+    "text": "Do you have pills for airsickness?",
+    "ko": "멀미약 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1326,
+    "text": "I have to take a connecting flight",
+    "ko": "항공기를 갈아타야 합니다",
+    "level": 3
+  },
+  {
+    "id": 1327,
+    "text": "I'd like to cancel my reservation.",
+    "ko": "예약을 취소하고 싶습니다",
+    "level": 3
+  },
+  {
+    "id": 1328,
+    "text": "I'd like to change my reservation.",
+    "ko": "예약을 변경하고싶습니다",
+    "level": 3
+  },
+  {
+    "id": 1329,
+    "text": "I'd like to leave one day earlier.",
+    "ko": "하루 일찍 떠나려고 합니다.",
+    "level": 3
+  },
+  {
+    "id": 1330,
+    "text": "Is it the right train for Seattle?",
+    "ko": "이 열차가 시애틀 행이 맞나요?",
+    "level": 3
+  },
+  {
+    "id": 1331,
+    "text": "Would you like something to drink?",
+    "ko": "마실것 좀 드릴까요?",
+    "level": 3
+  },
+  {
+    "id": 1332,
+    "text": "Can you put me on the waiting list?",
+    "ko": "대기자 명단에 올려주실래요?",
+    "level": 3
+  },
+  {
+    "id": 1333,
+    "text": "Excuse me. I think this is my seat.",
+    "ko": "실례합니다. 여기 제 자리 같은데요",
+    "level": 3
+  },
+  {
+    "id": 1334,
+    "text": "How long does it take to get there?",
+    "ko": "도착까지 시간이 얼마나 걸리나요?",
+    "level": 3
+  },
+  {
+    "id": 1335,
+    "text": "I have a stop over in San Francisco",
+    "ko": "샌프란시스코에서 경유합니다",
+    "level": 3
+  },
+  {
+    "id": 1337,
+    "text": "I'd like to confirm my reservation?",
+    "ko": "항공권 예약을 확인하고 싶어요",
+    "level": 3
+  },
+  {
+    "id": 1338,
+    "text": "I'm a transit passenger for Chicago",
+    "ko": "저는시카고행 환승객입니다",
+    "level": 3
+  },
+  {
+    "id": 1339,
+    "text": "Which floor has the fitness center?",
+    "ko": "운동 시설은 몇 층에 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1340,
+    "text": "Are there any seats left for Friday?",
+    "ko": "금요일에 남은 좌석이 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1341,
+    "text": "Can I change the date for my flight?",
+    "ko": "항공편 날짜를 바꿀수 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1342,
+    "text": "I'll check if we have another flight",
+    "ko": "다른 비행편이 있는지 알아봐 드릴께요",
+    "level": 3
+  },
+  {
+    "id": 1343,
+    "text": "I'll let you know when we get there.",
+    "ko": "도착하면 알려드릴게요",
+    "level": 3
+  },
+  {
+    "id": 1344,
+    "text": "Is there a subway station near here?",
+    "ko": "이 근처에 지하철 역이 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1345,
+    "text": "Please keep your bag under your seat",
+    "ko": "가방을 좌석밑으로 넣어주세요",
+    "level": 3
+  },
+  {
+    "id": 1346,
+    "text": "Where is the nearest subway station?",
+    "ko": "가장 가까운 지하철 역이 어디 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1347,
+    "text": "Where should I get off for City Hall?",
+    "ko": "시청 가려면 어디서 내려야 하나요?",
+    "level": 3
+  },
+  {
+    "id": 1348,
+    "text": "Are there any other flights available?",
+    "ko": "다른 항공편이 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1349,
+    "text": "Do you have a direct flight to Sydney?",
+    "ko": "시드니행 직항 항공편이 있습니까?",
+    "level": 3
+  },
+  {
+    "id": 1350,
+    "text": "Is this the right bus for King Street?",
+    "ko": "킹스트리트 가는 버스 맞나요?",
+    "level": 3
+  },
+  {
+    "id": 1351,
+    "text": "May I have your e-ticket and passport.",
+    "ko": "전자항공권과 여권을 보여주시겠습니까?",
+    "level": 3
+  },
+  {
+    "id": 1352,
+    "text": "Can I move to an empty seat over there?",
+    "ko": "저기 빈 좌석으로 옮겨도 되나요?",
+    "level": 3
+  },
+  {
+    "id": 1353,
+    "text": "I'd like to sit together with my friend",
+    "ko": "제친구와 함께 앉고 싶어요",
+    "level": 3
+  },
+  {
+    "id": 1354,
+    "text": "Can I leave my baggage until I check in?",
+    "ko": "체크인 할 때까지 짐 좀 맡길 수 있나요?",
+    "level": 3
+  },
+  {
+    "id": 1355,
+    "text": "I'm afraid all flights are fully booked.",
+    "ko": "죄송하게도 좌석이 다 예약됐어요.",
+    "level": 3
+  },
+  {
+    "id": 1356,
+    "text": "You should transfer trains at City Hall.",
+    "ko": "시청역에서 열차를 갈아타세요.",
+    "level": 3
+  },
+  {
+    "id": 1357,
+    "text": "Do you want a window seat or an aisle seat?",
+    "ko": "창가쪽과 통로쪽 좌석중 어디를 원하세요?",
+    "level": 3
+  },
+  {
+    "id": 1358,
+    "text": "Which bus should I take to go to City Hall?",
+    "ko": "시청 가려면 몇 번 버스를 타야 하나요?",
+    "level": 3
+  },
+  {
+    "id": 1359,
+    "text": "We need your credit card number for a deposit.",
+    "ko": "보증금을 위해 카드 번호가 필요합니다.",
+    "level": 3
+  },
+  {
+    "id": 1360,
+    "text": "Where is the check-in counter for Korean Airlines?",
+    "ko": "대한항공 체크인 카운터는 어디에 있나요?",
+    "level": 3
+  }
 ]

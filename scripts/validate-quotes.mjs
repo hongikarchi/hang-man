@@ -22,13 +22,16 @@ const DATASETS = [
     },
   },
   {
+    // 여행 회화는 짧은 실용 표현이 본질(대부분 15~50자). movies 처럼 이 카테고리만
+    // 밴드를 데이터 실제 분포에 맞춰 낮춘다(원래 L3 76자+ 하한은 회화엔 비현실적 →
+    // L3 가 비어 검증 실패). 24/31 경계로 L1/L2/L3 균형(54/86/60).
     name: '여행 회화(travel)',
     data: load('travel.json'),
     requireAuthor: false,
     range: {
-      1: { min: 14, max: 40 },
-      2: { min: 41, max: 75 },
-      3: { min: 76, max: 115 },
+      1: { min: 14, max: 24 },
+      2: { min: 25, max: 31 },
+      3: { min: 32, max: 115 },
     },
   },
   {
