@@ -16,6 +16,16 @@ CREATE TABLE IF NOT EXISTS scores (
 
 CREATE INDEX IF NOT EXISTS scores_rank_idx ON scores (score DESC, updated_at ASC);
 
+-- ---- 닉네임 잠금 PIN (api/auth.js, api/_auth.js) ----
+-- scores 행에 선택적 PIN 해시를 붙여 닉네임을 "잠근다". NULL 이면 PIN 미설정(레거시/익명).
+--  - 목적: 사칭/덮어쓰기 방지 + 중복 닉 선점 잠금 + 기기 간 안전한 불러오기.
+--  - TOFU(trust-on-first-use): 처음 PIN 을 거는 사람이 그 닉의 주인이 된다.
+--    기존(PIN NULL) 닉은 누구나 선점 가능 — 단 점수는 GREATEST 라 빼앗아도 깎이진 않음.
+--  - 해시 형식은 api/_auth.js 의 scrypt 규약("scrypt$N$r$p$salt$hash", base64url).
+--  - fail-soft 핵심: 이 컬럼이 아직 없어도(ALTER 미적용) 코드가 죽으면 안 된다.
+--    score.js/played.js 는 컬럼 부재를 "PIN 미설정(=레거시, 통과)"으로 취급한다.
+ALTER TABLE scores ADD COLUMN IF NOT EXISTS pin_hash text;
+
 -- ---- 푼 문제 진행 동기화 (api/played.js) ----
 -- 닉네임별로 "어떤 문제를 풀었는지"를 기기 간 동기화한다.
 -- localStorage 가 1차 저장소이고, 이 테이블은 닉네임 기준 동기화 레이어다.

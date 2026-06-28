@@ -62,14 +62,15 @@ export async function fetchPlayed(nickname, category, level, cycle) {
 /**
  * 한 문제를 푼 것으로 서버에 마킹 (fire-and-forget). 실패는 삼킨다.
  * 호출부는 닉네임이 있을 때만 호출할 것(서버는 닉네임 없으면 400).
+ * token 은 잠긴 닉이면 함께 보낸다(없으면 서버가 잠긴 닉의 쓰기를 401 로 막지만 fire-and-forget).
  */
-export async function postPlayed(nickname, category, level, cycle, quoteId) {
+export async function postPlayed(nickname, category, level, cycle, quoteId, token) {
   if (!nickname) return
   try {
     await fetch('/api/played', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nickname, category, level, cycle, quoteId }),
+      body: JSON.stringify({ nickname, category, level, cycle, quoteId, token: token || undefined }),
     })
   } catch {
     /* 오프라인/네트워크 오류 — 무시 */

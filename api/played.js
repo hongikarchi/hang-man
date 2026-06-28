@@ -12,6 +12,7 @@
 //
 // DATABASE_URL 은 서버 전용 환경변수(Neon). VITE_ 접두사 금지.
 import { neon } from '@neondatabase/serverless'
+import { checkWriteAuth } from './_auth.js'
 
 const MAX_NICK = 24
 const CATEGORIES = new Set(['quotes', 'travel', 'business', 'movies'])
@@ -77,6 +78,12 @@ export default async function handler(req, res) {
 
   try {
     const sql = neon(process.env.DATABASE_URL)
+
+    // 잠긴 닉이면 유효 토큰 필수(남이 내 진행을 오염시키는 것 방지). 잠기지 않으면 통과.
+    // (GET 은 게이트하지 않음 — 읽기 차단 시 기기 간 동기화가 깨지고, 노출 위험도 작음.)
+    const auth = await checkWriteAuth(sql, scope.nick, body.token, Date.now())
+    if (!auth.allowed) return res.status(401).json({ error: auth.reason })
+
     await sql`
       INSERT INTO played (nickname, category, level, quote_id, cycle, played_at)
       VALUES (${scope.nick}, ${scope.cat}, ${scope.lvl}, ${quoteId}, ${scope.cyc}, now())

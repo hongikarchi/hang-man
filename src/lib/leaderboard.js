@@ -5,6 +5,7 @@
 
 const NICK_KEY = 'qh_nickname'
 const TOTAL_KEY = 'qh_total'
+const TOKEN_KEY = 'qh_token' // 잠긴 닉의 서명 토큰(서버 쓰기 권한). 닉 전환/로그아웃 시 비움.
 export const MAX_NICK = 24
 
 // ---- localStorage (모든 접근 try/catch — 비활성/쿼터 초과 시 안전 폴백) ----
@@ -43,16 +44,66 @@ export function setTotal(n) {
   }
 }
 
+// ---- 토큰 (잠긴 닉의 서버 쓰기 권한) ----
+// PIN 으로 잠긴 닉만 토큰을 가진다. 잠기지 않은 닉은 빈 문자열(서버가 토큰 없이도 통과).
+
+export function getToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setToken(token) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token)
+    else localStorage.removeItem(TOKEN_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 // ---- 네트워크 (fail-soft) ----
 
+// 닉네임 로그인/등록. PIN 으로 닉을 잠그거나(신규) 검증한다(기존 잠긴 닉).
+// 반환:
+//   { ok:true, score, token, locked }   — 성공(token 은 잠긴 닉일 때만 비어있지 않음)
+//   { ok:false, reason }                — 'pin_required' | 'pin_mismatch' | 'pin_invalid'
+//   { ok:false, reason:'network' }      — 서버 도달 실패(오프라인/vite dev). 호출부는
+//                                          로컬 플레이를 막지 말 것(fail-soft).
+// pin 은 선택. 안 주면 잠기지 않은 닉은 그대로 통과, 잠긴 닉은 pin_required 로 막힌다.
+export async function loginNickname(nickname, pin) {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pin ? { nickname, pin } : { nickname }),
+    })
+    // vite dev 는 /api 대신 index.html(200, HTML)을 준다 → json 파싱 실패로 네트워크 취급.
+    let data
+    try {
+      data = await res.json()
+    } catch {
+      return { ok: false, reason: 'network' }
+    }
+    if (res.ok) {
+      return { ok: true, score: Number(data?.score) || 0, token: data?.token || '', locked: !!data?.locked }
+    }
+    return { ok: false, reason: data?.error || 'unknown', locked: !!data?.locked }
+  } catch {
+    return { ok: false, reason: 'network' }
+  }
+}
+
 // 누적 총점 서버 제출. fire-and-forget — 실패는 삼킨다(게임플레이 무관).
-// 호출부는 닉네임이 비어있지 않을 때만 호출할 것.
-export async function postScore(nickname, score) {
+// 호출부는 닉네임이 비어있지 않을 때만 호출할 것. token 은 잠긴 닉이면 함께 보낸다.
+export async function postScore(nickname, score, token) {
   try {
     await fetch('/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nickname, score }),
+      body: JSON.stringify({ nickname, score, token: token || undefined }),
     })
   } catch {
     /* 오프라인/네트워크 오류 — 무시 */

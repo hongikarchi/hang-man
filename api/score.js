@@ -4,6 +4,7 @@
 //
 // DATABASE_URL 은 서버 전용 환경변수(Neon 연동이 자동 주입). 절대 VITE_ 접두사 금지.
 import { neon } from '@neondatabase/serverless'
+import { checkWriteAuth } from './_auth.js'
 
 const MAX_NICK = 24
 const MAX_SCORE = 10_000_000
@@ -50,6 +51,11 @@ export default async function handler(req, res) {
 
   try {
     const sql = neon(process.env.DATABASE_URL)
+
+    // 잠긴 닉이면 유효 토큰 필수(사칭/덮어쓰기 방지). 잠기지 않은 닉은 그대로 통과.
+    const auth = await checkWriteAuth(sql, nickname, body.token, Date.now())
+    if (!auth.allowed) return res.status(401).json({ error: auth.reason })
+
     const rows = await sql`
       INSERT INTO scores (nickname, score, updated_at)
       VALUES (${nickname}, ${score}, now())
