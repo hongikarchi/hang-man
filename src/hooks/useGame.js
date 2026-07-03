@@ -5,15 +5,21 @@
 
 import { useReducer, useMemo, useCallback } from 'react'
 import { CATEGORIES, DEFAULT_CATEGORY, getCategory } from '../data/categories.js'
-import { buildCipherMap } from '../lib/cipher.js'
+import { buildCipherMap, uniqueLetters } from '../lib/cipher.js'
 import { tokenize } from '../lib/tokenize.js'
 import {
   pickQuote,
   pickRevealLetters,
+  pickDecoyLetters,
   revealCountForLevel,
   ATTEMPTS_BY_LEVEL,
   HINTS_PER_ROUND,
 } from '../lib/quotePicker.js'
+
+// 더미(가짜) 카드 정책. 쉬울수록 더미를 많이 섞어 fake-out 을 강하게.
+// 총 카드(실제+더미)를 MAX_TOTAL_CARDS 로 캡해 짧은 화면 세로 예산을 지킨다.
+const DECOY_FRACTION = { 1: 0.5, 2: 0.4, 3: 0.3 }
+const MAX_TOTAL_CARDS = 22
 
 /** 초기 상태: 아직 레벨 선택 전(INIT). */
 function makeInitialState() {
@@ -23,6 +29,7 @@ function makeInitialState() {
     quote: null,
     cipherMap: {},
     tokens: [],
+    decoys: [], // 이번 라운드의 더미(가짜) 카드 글자들 (문장에 없는 a-z). 라운드마다 새로.
     remainingAttempts: 0,
     selectedLetter: null, // 탭-투-플레이스: 선택된 글자 (글자 우선)
     selectedBlankIndex: null, // 탭-투-플레이스: 선택된 빈칸 (빈칸 우선). 둘은 상호 배타.
@@ -99,6 +106,14 @@ function initRound(state, level, opts = {}) {
   const revealLetters = pickRevealLetters(quote.text, revealCount)
   const tokens = tokenize(quote.text, cipherMap, revealLetters)
 
+  // 더미(가짜) 카드: 문장에 없는 글자 몇 개를 트레이에 섞는다(fake-out).
+  // 개수는 레이아웃 독립적 — 화면당 한 줄 카드 수를 재지 않고(회전/리사이즈에 깨짐)
+  // 고정 개수만 정하고 CSS flex-wrap 이 배치. 총 카드는 MAX_TOTAL_CARDS 로 캡(세로 예산).
+  const realCount = uniqueLetters(quote.text).length
+  const wantDecoys = Math.round(realCount * DECOY_FRACTION[level])
+  const decoyCap = Math.max(0, Math.min(26 - realCount, MAX_TOTAL_CARDS - realCount))
+  const decoys = pickDecoyLetters(quote.text, Math.min(wantDecoys, decoyCap))
+
   return {
     ...state,
     gameState: 'PLAYING',
@@ -107,6 +122,7 @@ function initRound(state, level, opts = {}) {
     quote,
     cipherMap,
     tokens,
+    decoys,
     remainingAttempts: ATTEMPTS_BY_LEVEL[level],
     hintsLeft: HINTS_PER_ROUND,
     meaningRevealed: false,
@@ -288,10 +304,10 @@ export function reducer(state, action) {
       return { ...state, category: action.category }
 
     case 'BACK_TO_CATEGORIES':
-      return { ...state, gameState: 'INIT', category: null, quote: null, tokens: [] }
+      return { ...state, gameState: 'INIT', category: null, quote: null, tokens: [], decoys: [] }
 
     case 'BACK_TO_LEVELS': // 카테고리는 유지 — 같은 카테고리의 레벨 목록으로
-      return { ...state, gameState: 'INIT', quote: null, tokens: [] }
+      return { ...state, gameState: 'INIT', quote: null, tokens: [], decoys: [] }
 
     case 'SELECT_LETTER': {
       if (state.gameState !== 'PLAYING') return state
@@ -416,12 +432,14 @@ export function useGame() {
 
   // ---- 파생값 (저장하지 않고 tokens 에서 계산) ----
 
-  // 표시할 카드 = 문장에 등장하는 고유 글자 (AC3). 정렬해 안정적 순서.
+  // 표시할 카드 = 문장에 등장하는 고유 글자(AC3) + 더미(가짜) 글자.
+  // 둘을 합쳐 알파벳 정렬 — 더미가 위치상 구별되지 않아야 fake-out 이 성립한다.
   const cards = useMemo(() => {
     const set = new Set()
     for (const t of state.tokens) if (t.type === 'letter') set.add(t.letter)
+    for (const d of state.decoys) set.add(d)
     return [...set].sort()
-  }, [state.tokens])
+  }, [state.tokens, state.decoys])
 
   // 각 글자별: 총 등장 수 / 맞힌 수. 카드 회색 판정(AC5)에 사용.
   const letterProgress = useMemo(() => {

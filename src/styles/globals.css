@@ -31,6 +31,13 @@
   --r-lg: 16px;
   --tap: 44px;            /* minimum tap target */
 
+  /* ---- letter card (fluid, viewport 기준 — DragOverlay 고스트가 .screen 형제라
+     cqw면 어긋남. vw는 사용처 뷰포트로 해석돼 카드·고스트가 항상 일치) ---- */
+  --card-w:  clamp(46px, 13.5vw, 66px);  /* 46 floor = 오늘 크기(360px 무회귀), 66 상한(태블릿) */
+  --card-h:  clamp(54px, 15.8vw, 76px);  /* 오늘 46x54 의 w:h≈0.85 유지 */
+  --card-fs: clamp(24px, 7.1vw, 34px);   /* 오늘 24px .letterOnly 를 floor 로 */
+  --card-badge: clamp(16px, 4.4vw, 20px);
+
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
   --shadow-lift: 0 8px 24px rgba(16, 24, 40, 0.12);
 

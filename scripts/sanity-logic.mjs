@@ -1,6 +1,7 @@
 /* 순수 로직 빠른 검증 (AC1, 토큰화). 실행: node scripts/sanity-logic.mjs */
 import { buildCipherMap, uniqueLetters, SYMBOL_POOL } from '../src/lib/cipher.js'
 import { tokenize, groupIntoWords } from '../src/lib/tokenize.js'
+import { pickDecoyLetters } from '../src/lib/quotePicker.js'
 
 let pass = 0
 let fail = 0
@@ -54,6 +55,31 @@ console.log('\n--- groupIntoWords ---')
 const g = groupIntoWords(tokenize('a b', buildCipherMap('a b')))
 ok(g.length === 3 && g[0].type === 'word' && g[1].type === 'space' && g[2].type === 'word',
    '"a b" → word, space, word')
+
+console.log('\n--- pickDecoyLetters (더미 카드) ---')
+{
+  const seed = () => 0.5 // 결정적
+  const text = 'Knowledge is power.'
+  const used = new Set(uniqueLetters(text)) // k,n,o,w,l,e,d,g,i,s,p,r
+  const d = pickDecoyLetters(text, 5, seed)
+  ok(d.length === 5, `요청 5개 → 5개 반환 (실제 ${d.length})`)
+  ok(d.every((ch) => !used.has(ch)), '★ 더미는 문장에 있는 글자와 절대 겹치지 않음')
+  ok(d.every((ch) => ch >= 'a' && ch <= 'z'), '더미는 모두 a-z 소문자')
+  ok(new Set(d).size === d.length, '더미끼리 중복 없음')
+  // 결정적: 같은 seed → 같은 결과
+  ok(pickDecoyLetters(text, 5, seed).join('') === d.join(''), 'seed 고정 시 결정적')
+  // 캡: 26 - 실제고유수 초과 요청해도 그만큼만
+  const cap = 26 - used.size
+  const capped = pickDecoyLetters(text, 99, seed)
+  ok(capped.length === cap, `★ 26-realCount(${cap}) 캡 준수 (99 요청 → ${capped.length})`)
+  ok(capped.every((ch) => !used.has(ch)), '캡 상황에서도 문장 글자와 안 겹침')
+  // n<=0 → []
+  ok(pickDecoyLetters(text, 0, seed).length === 0, 'n=0 → 빈 배열')
+  ok(pickDecoyLetters(text, -3, seed).length === 0, 'n<0 → 빈 배열')
+  // 알파벳 거의 다 쓰는 문장: 더미 풀이 작아도 안전
+  const pangram = 'The quick brown fox jumps over the lazy dog.' // 26자 전부
+  ok(pickDecoyLetters(pangram, 5, seed).length === 0, '★ 팬그램(26자 전부) → 더미 0개(풀 없음)')
+}
 
 console.log(`\n결과: ${pass} passed, ${fail} failed`)
 process.exit(fail === 0 ? 0 : 1)

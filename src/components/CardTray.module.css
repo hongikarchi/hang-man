@@ -2,6 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 8px;                       /* fallback */
+  gap: clamp(6px, 1.8vw, 10px);
   padding: 4px 2px;
 }

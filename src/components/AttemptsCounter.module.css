@@ -1,49 +1,39 @@
 .wrap {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px 4px 8px;
-  border-radius: 999px;
-  background: var(--bg-elev-2);
+  gap: 2px;
+  /* pill 배경/패딩 제거: N개(최대 8개) 하트를 감싸면 좁은 화면에서 자리만 먹는다 */
 }
 
 .heart {
-  font-size: 15px;
+  font-size: clamp(12px, 3.4vw, 15px);
   line-height: 1;
-  color: var(--wrong);
+  /* alive↔broken 전환 시 색/스케일이 부드럽게 (한 칸 깨질 때 자동 발동) */
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
-.count {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--text-dim);
-}
-.count b {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text);
-}
-.total {
-  font-size: 12px;
-  color: var(--text-faint);
-}
-
-/* 시도 2 이하: 붉게 강조 + 하트 깜빡 */
-.low {
-  background: var(--wrong-bg);
-}
-.low .count b {
+.alive {
   color: var(--wrong);
 }
-.low .heart {
+/* 잃은 하트: 속 빈 하트(♡)를 "흐린 붉은색"으로 — 회색(--surface)은 흰 헤더 위
+   대비 ~1.2:1 이라 사실상 안 보여 "몇 개 중 몇 개"가 안 읽힌다. 붉게 남겨 총 개수를
+   한눈에 보이게 하되 opacity 로 채워진 하트와 구분(=이미 잃음). */
+.broken {
+  color: var(--wrong);
+  opacity: 0.4;
+}
+
+/* 시도 2 이하: 남은 하트를 붉게 강조 + 깜빡 */
+.low .alive {
   animation: pulse 0.9s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.18); }
+  50% { opacity: 0.55; transform: scale(1.18); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .low .heart { animation: none; }
+  .low .alive { animation: none; }
+  .heart { transition: none; }
 }

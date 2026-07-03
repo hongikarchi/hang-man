@@ -13,6 +13,7 @@ import QuoteBoard from './QuoteBoard.jsx'
 import CardTray from './CardTray.jsx'
 import AttemptsCounter from './AttemptsCounter.jsx'
 import { getCategory } from '../data/categories.js'
+import { ATTEMPTS_BY_LEVEL } from '../lib/quotePicker.js'
 import styles from './GameScreen.module.css'
 
 export default function GameScreen({ game, onHelp }) {
@@ -72,14 +73,17 @@ export default function GameScreen({ game, onHelp }) {
           <span className={styles.levelBadge} data-level={level}>{levelTag}</span>
           {category && <span className={styles.categoryChip}>{category.label}</span>}
           <span className={styles.headerSpacer} />
-          <AttemptsCounter
-            remaining={state.remainingAttempts}
-            total={{ 1: 8, 2: 7, 3: 6 }[level]}
-          />
           <button className={styles.helpBtn} onClick={onHelp} aria-label="플레이 방법">
             ?
           </button>
         </header>
+
+        <div className={styles.livesRow}>
+          <AttemptsCounter
+            remaining={state.remainingAttempts}
+            total={ATTEMPTS_BY_LEVEL[level]}
+          />
+        </div>
 
         {state.quote?.ko &&
           (state.meaningRevealed ? (

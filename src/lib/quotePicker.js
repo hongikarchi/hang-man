@@ -67,6 +67,33 @@ export function pickRevealLetters(text, n, rand = Math.random) {
 }
 
 /**
+ * 문장에 "없는" 알파벳(a-z) 중 n개를 무작위로 고른다 — 더미(가짜) 카드용.
+ * 하단 트레이에 실제 글자와 섞어 넣어 fake-out 을 준다. 반환은 uniqueLetters(text)
+ * 와 절대 겹치지 않으며(=문장에 없는 글자만), 최대 (26 - 실제 고유 글자 수)개.
+ * cipher/토큰과 무관 — 더미를 빈칸에 놓으면 어떤 오답과도 동일하게 목숨을 잃는다.
+ *
+ * @param {string} text 명언 텍스트
+ * @param {number} n 원하는 더미 개수
+ * @param {() => number} [rand] 난수 생성기 (테스트 주입용)
+ * @returns {string[]} 문장에 없는 글자 배열 (최대 n개, 무작위 순서)
+ */
+export function pickDecoyLetters(text, n, rand = Math.random) {
+  if (n <= 0) return []
+  const used = new Set(uniqueLetters(text))
+  const pool = []
+  for (let c = 97; c <= 122; c++) { // 'a'..'z'
+    const ch = String.fromCharCode(c)
+    if (!used.has(ch)) pool.push(ch)
+  }
+  // Fisher-Yates 셔플로 앞 n개 선택 (라운드마다 다른 더미 조합)
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[pool[i], pool[j]] = [pool[j], pool[i]]
+  }
+  return pool.slice(0, Math.min(n, pool.length))
+}
+
+/**
  * 레벨별 "미리 공개 글자 수" 계산.
  * 고유 글자 수에 비례하되, 풀어야 할 글자가 최소 3종 이상 남도록 보장.
  *  - L1: 고유 글자의 약 절반 공개(가장 쉬움)

@@ -10,6 +10,9 @@
     5. dvh 캐스케이드(100dvh 가 100vh 를 이겨야 함) + 뷰포트 축소 프록시
     6. 결과 화면: 작은 뷰포트에서 문서 스크롤로 버튼 도달 가능
     7. 폰트 캡: 긴 단어에서만 발동, 짧은 문장은 기존 크기 유지
+    8. 카드 크기: 좁은 화면 최소(≥46px) 보장 + 넓은 화면(412) 실제 확대(≥54px) + 상한(≤66px)
+    9. 남은 시도 하트: N개 렌더 + 채워짐==remaining, 오답 시 1개 깨짐
+   10. 결합 세로 최악(하트8+최다카드+뜻바): 트레이 가시 + 보드 스크롤 가능
 
    실행: node scripts/verify-layout.mjs
    옵션 env: E2E_BASE(외부 dev 서버), E2E_BROWSER(브라우저 경로),
@@ -117,7 +120,7 @@ async function main() {
       } catch { /* ignore */ }
     })
 
-    for (const vp of [{ width: 375, height: 667 }, { width: 360, height: 740 }]) {
+    for (const vp of [{ width: 375, height: 667 }, { width: 360, height: 740 }, { width: 412, height: 915 }]) {
       console.log(`--- ${vp.width}x${vp.height}: 최장 문장(quote 304, L3) ---`)
       await page.setViewport({ ...vp, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
       await setupGame(page, base, 304, 3)
@@ -198,6 +201,25 @@ async function main() {
       ok(fixed.headerVisible, '헤더 상시 가시')
       ok(fixed.trayVisible, '★ 트레이(카드)가 화면 하단 안에 보임')
       ok(fixed.cardTappable, '마지막 글자 카드가 가려지지 않고 탭 가능')
+
+      // 4c) 카드 크기: "너무 작음" 회귀 감지(갤럭시 대응). 좁은 화면은 최소(탭 타깃) 보장,
+      //     넓은 화면(412급)은 실제로 커지는지 확인(고정 46px 이면 실패) + 상한(태블릿 방어).
+      const cardSz = await page.evaluate(() => {
+        const cards = [...document.querySelectorAll('button[aria-label^="글자 "]')]
+        const r = cards[0].getBoundingClientRect()
+        const fs = parseFloat(getComputedStyle(cards[0].querySelector('span')).fontSize)
+        return { w: r.width, fs }
+      })
+      if (vp.width <= 375) {
+        ok(cardSz.w >= 45.5, `카드 폭 최소 보장 ≥46px @${vp.width} (실제 ${cardSz.w.toFixed(1)}px)`)
+        ok(cardSz.fs >= 23.5, `카드 글자 최소 ≥24px @${vp.width} (실제 ${cardSz.fs.toFixed(1)}px)`)
+      }
+      if (vp.width >= 412) {
+        // 오늘의 고정 46px 카드는 이 어서션에서 실패 → "너무 작음" 회귀를 실제로 잡는다.
+        ok(cardSz.w >= 54, `★ 넓은 화면에서 카드가 커짐 ≥54px @${vp.width} (실제 ${cardSz.w.toFixed(1)}px)`)
+      }
+      ok(cardSz.w <= 66.5, `카드 폭 상한 ≤66px(태블릿 방어) @${vp.width} (실제 ${cardSz.w.toFixed(1)}px)`)
+
       await shot(page, `game-304-${vp.width}x${vp.height}`)
     }
 
@@ -221,6 +243,75 @@ async function main() {
     ok(collapsed.docOverflow <= 0, `공개 전 문서 가로 오버플로 없음 (${collapsed.docOverflow}px)`)
     ok(collapsed.barOverflow <= 0, `공개 전 뜻 바 가로 오버플로 없음 (${collapsed.barOverflow}px)`)
     await shot(page, 'meaning-collapsed-360')
+
+    // 4d) 남은 시도 하트: N개 렌더 + 채워짐 == remaining. L1(총 8개) = 하트 최다 케이스.
+    console.log('--- 남은 시도 하트(L1, 360px) ---')
+    await page.setViewport({ width: 360, height: 740, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+    await setupGame(page, base, 101, 1, false) // L1 → total 8
+    const heartsBefore = await page.evaluate(() => {
+      const wrap = document.querySelector('[aria-label^="남은 시도"]')
+      return {
+        total: wrap.querySelectorAll('[class*="heart"]').length,
+        filled: wrap.querySelectorAll('[class*="alive"]').length,
+        label: wrap.getAttribute('aria-label'),
+        docOverflow: document.documentElement.scrollWidth - window.innerWidth,
+      }
+    })
+    ok(heartsBefore.total === 8, `L1: 하트 8개 렌더 (실제 ${heartsBefore.total})`)
+    ok(heartsBefore.filled === 8, `L1: 시작 시 8개 모두 채워짐 (실제 ${heartsBefore.filled})`)
+    ok(/8 \/ 8/.test(heartsBefore.label), `하트 aria-label 숫자 유지 ("${heartsBefore.label}")`)
+    ok(heartsBefore.docOverflow <= 0, `L1 하트 줄: 가로 오버플로 없음 (${heartsBefore.docOverflow}px)`)
+    // 오답 1회 유도 → 하트 1개 깨짐(채워짐 7개). e2e LOSE 루프와 동일한 2단계 흐름:
+    // 확실한 오답 글자 카드를 먼저 탭(글자 선택) → 리렌더 대기 → 첫 빈칸 탭(배치→오답).
+    // (한 evaluate 안에서 연속 클릭하면 selectedBlankIndex flush 전이라 배치가 안 된다.)
+    const wrongAns = await page.evaluate(() => {
+      const blank = document.querySelector('[role="button"][aria-label*="빈칸"]')
+      const cip = (blank.getAttribute('aria-label').match(/힌트\s+(\S+)/) || [])[1]
+      const map = {}
+      ;[...document.querySelectorAll('button[aria-label^="글자 "]')].forEach((b) => {
+        const m = b.getAttribute('aria-label').match(/글자\s+([A-Z]).*힌트\s+(\S+)/)
+        if (m) map[m[2]] = m[1].toLowerCase()
+      })
+      const ans = map[cip] // 첫 빈칸의 정답 글자
+      // 정답이 아닌(=확실한 오답) 활성 카드를 하나 골라 탭(글자 선택)
+      const wrong = [...document.querySelectorAll('button[aria-label^="글자 "]')].find(
+        (b) => !b.disabled && b.querySelector('span')?.textContent.trim().toLowerCase() !== ans)
+      if (wrong) wrong.click()
+      return !!wrong
+    })
+    await tick(200)
+    await page.evaluate(() => {
+      const b = document.querySelector('[role="button"][aria-label*="빈칸"]'); if (b) b.click()
+    })
+    await tick(220)
+    const heartsAfter = await page.evaluate(() =>
+      document.querySelector('[aria-label^="남은 시도"]').querySelectorAll('[class*="alive"]').length)
+    ok(wrongAns && heartsAfter === 7, `★ 오답 후 하트 1개 깨짐 → 채워짐 7개 (실제 ${heartsAfter})`)
+
+    // 4e) ★ 결합 세로 최악 케이스: L1(하트 8) + 고유글자 최다(quote 105=16종 → 총 카드 22 캡)
+    //     + 더미 최대 + 뜻 바 공개. 가장 짧은 게임 뷰포트에서 트레이 가시 + 보드 스크롤 가능.
+    //     R1(큰 카드)·R2(하트 줄)·R3(더미)의 세로 효과가 함께 예산을 안 터뜨리는지 확인.
+    console.log('--- 결합 세로 최악(L1 하트8 + 최다카드 + 뜻바, 360x640) ---')
+    await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+    await setupGame(page, base, 105, 1, true) // revealMeaning=true → 뜻 바 공개(세로 최악)
+    const combined = await page.evaluate(() => {
+      const tray = document.querySelector('footer').getBoundingClientRect()
+      const main = document.querySelector('main')
+      const cardCount = document.querySelectorAll('button[aria-label^="글자 "]').length
+      const hearts = document.querySelector('[aria-label^="남은 시도"]').querySelectorAll('[class*="heart"]').length
+      return {
+        trayVisible: tray.bottom <= window.innerHeight + 0.5 && tray.top < window.innerHeight,
+        boardScrollable: main.scrollHeight > main.clientHeight,
+        docOverflowX: document.documentElement.scrollWidth - window.innerWidth,
+        cardCount, hearts,
+      }
+    })
+    ok(combined.hearts === 8, `결합: 하트 8개(L1) (실제 ${combined.hearts})`)
+    ok(combined.cardCount > 16, `결합: 실제+더미 카드 다수(>16, 실제 ${combined.cardCount})`)
+    ok(combined.trayVisible, '★ 결합 최악에서도 트레이가 화면 하단 안에 보임')
+    ok(combined.boardScrollable, '★ 결합 최악에서도 보드는 스크롤로 도달 가능(콘텐츠 안 잘림)')
+    ok(combined.docOverflowX <= 0, `결합 최악: 가로 오버플로 없음 (${combined.docOverflowX}px)`)
+    await shot(page, 'combined-worstcase-360x640')
 
     // 5) dvh 캐스케이드 + 뷰포트 높이 축소(URL바 등장 프록시)
     console.log('--- dvh 캐스케이드 / 뷰포트 축소 ---')

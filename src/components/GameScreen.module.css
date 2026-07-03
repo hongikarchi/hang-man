@@ -18,6 +18,19 @@
   background: var(--bg-elev);
 }
 
+/* 남은 시도(하트) 전용 줄 — 헤더에 하트를 최대 8개까지 넣으면 카테고리 칩과
+   가로 자리 다툼이 나므로 헤더 아래 독립 줄로 분리(우측 정렬).
+   flex:0 0 auto 라 이 줄의 높이는 flex:1 스크롤 보드가 흡수 → 트레이는 하단 고정 유지. */
+.livesRow {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--surface);
+  background: var(--bg-elev);
+}
+
 .backBtn {
   flex: 0 0 auto;
   width: var(--tap);
@@ -273,12 +286,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 54px;
+  width: 46px;            /* fallback */
+  width: var(--card-w);
+  height: 54px;           /* fallback */
+  height: var(--card-h);
   border-radius: var(--r-md);
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: var(--bg);
-  font-size: 22px;
+  font-size: 22px;        /* fallback */
+  font-size: var(--card-fs);
   font-weight: 800;
   box-shadow: var(--shadow-lift);
   pointer-events: none;
