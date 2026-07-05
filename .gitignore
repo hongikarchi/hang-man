@@ -5,6 +5,11 @@ node_modules/
 dist/
 dist-ssr/
 
+# gen-seo.mjs 생성물(빌드 시 재생성 — 소스는 categories.js). favicon.svg/og.png 는 소스라 커밋.
+public/learn/
+public/sitemap.xml
+public/robots.txt
+
 # local env / editor
 *.local
 .DS_Store

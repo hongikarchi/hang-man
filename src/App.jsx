@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { useGame } from './hooks/useGame.js'
 import { getCategory } from './data/categories.js'
 import CategorySelect from './components/CategorySelect.jsx'
@@ -257,6 +258,9 @@ export default function App() {
         <Leaderboard myNickname={nickname} onClose={() => setShowRank(false)} />
       )}
       {showHowTo && <HowToPlay onClose={closeHowTo} />}
+
+      {/* 쿠키리스 방문 측정(동의 배너 불필요). 프로덕션에서만 전송 — 유입 계기판. */}
+      <Analytics />
     </div>
   )
 }

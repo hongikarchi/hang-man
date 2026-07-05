@@ -132,9 +132,34 @@
 }
 .primary:hover { filter: brightness(1.05); }
 
+/* 공유하기 — 인디고 아웃라인(주목시키되 다음 문제 CTA 와 위계 구분) */
+.share {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border: 1px solid var(--accent);
+}
+.share:hover:not(:disabled) { background: #e3e6fe; }
+.share:disabled { opacity: 0.6; }
+
+/* 복사/실패 피드백 토스트(공유창 없는 데스크톱 등) */
+.toast {
+  margin: -2px 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
 .ghost {
   background: transparent;
   color: var(--text-dim);
+}
+
+/* 공유 카드 캡처 대상 — 화면 밖에 두되 렌더는 되게(display:none 이면 캡처 불가) */
+.offscreen {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  pointer-events: none;
 }
 
 @keyframes rise {
