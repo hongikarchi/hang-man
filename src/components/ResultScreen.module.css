@@ -154,14 +154,6 @@
   color: var(--text-dim);
 }
 
-/* 공유 카드 캡처 대상 — 화면 밖에 두되 렌더는 되게(display:none 이면 캡처 불가) */
-.offscreen {
-  position: fixed;
-  left: -9999px;
-  top: 0;
-  pointer-events: none;
-}
-
 @keyframes rise {
   0% { transform: translateY(16px) scale(0.97); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
