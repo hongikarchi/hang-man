@@ -22,6 +22,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@neondatabase/serverless": "^0.10.4",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/og": "^0.11.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

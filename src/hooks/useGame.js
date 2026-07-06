@@ -87,8 +87,11 @@ function initRound(state, level, opts = {}) {
   let quote
   if (opts.forceQuoteId != null) {
     quote = pool.find((q) => q.id === opts.forceQuoteId)
-    if (!quote) throw new Error(`문장 id ${opts.forceQuoteId} 없음 (카테고리 ${catId})`)
-  } else {
+    // 프로덕션 딥링크(?quote=)는 URL 조작 가능 → 못 찾으면 throw 대신 일반 선택으로
+    // 강등(fail-soft). 테스트는 유효 id 만 쓰므로 영향 없음.
+    if (!quote) console.warn(`문장 id ${opts.forceQuoteId} 없음 (카테고리 ${catId}) — 일반 선택으로 강등`)
+  }
+  if (!quote) {
     const { quote: picked, resetPlayed } = pickQuote(pool, level, playedIds[catId][level])
     if (resetPlayed) {
       // 레벨 소진 → 새 사이클 시작: 기록 비우고 사이클 번호 +1.
@@ -473,11 +476,11 @@ export function useGame() {
   const backToCategories = useCallback(() => dispatch({ type: 'BACK_TO_CATEGORIES' }), [])
   const selectLevel = useCallback((level) => {
     let opts
-    // DEV 전용: ?quote=<id> 로 특정 문장 강제(레이아웃/E2E 검증용). 프로덕션에서 제거됨.
-    if (import.meta.env.DEV) {
-      const q = Number(new URLSearchParams(window.location.search).get('quote'))
-      if (q) opts = { forceQuoteId: q }
-    }
+    // ?quote=<id> 로 특정 문장 강제. 원래 DEV 전용(테스트)이었으나 공유 딥링크
+    // (/s/:id → /?quote=id)가 "친구가 미리보기서 본 그 문장"으로 시작해야 해서
+    // 프로덕션에도 허용. 시작 후 App 이 URL 을 지워 다음 라운드엔 영향 없음.
+    const q = Number(new URLSearchParams(window.location.search).get('quote'))
+    if (q) opts = { forceQuoteId: q }
     dispatch({ type: 'SET_LEVEL', level, opts })
   }, [])
   const selectLetter = useCallback((letter) => dispatch({ type: 'SELECT_LETTER', letter }), [])

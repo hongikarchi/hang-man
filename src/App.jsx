@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { useGame } from './hooks/useGame.js'
-import { getCategory } from './data/categories.js'
+import { getCategory, CATEGORIES } from './data/categories.js'
 import CategorySelect from './components/CategorySelect.jsx'
 import LevelSelect from './components/LevelSelect.jsx'
 import GameScreen from './components/GameScreen.jsx'
@@ -65,6 +65,23 @@ export default function App() {
       /* ignore */
     }
   }
+
+  // 공유 딥링크: /s/:id → /?quote=<id> 로 들어오면 그 문장으로 바로 시작.
+  // (미리보기서 본 "그 문장"이 나와야 티저와 경험이 일치.)
+  // 처리 후 URL 을 지워 다음 라운드/새로고침에 재강제되지 않게 한다.
+  // 모르는 id 면 URL 만 지우고 평소처럼(카테고리 선택) — fail-soft.
+  useEffect(() => {
+    const q = Number(new URLSearchParams(window.location.search).get('quote'))
+    if (!q) return
+    const cat = CATEGORIES.find((c) => c.data.some((x) => x.id === q))
+    if (cat) {
+      const found = cat.data.find((x) => x.id === q)
+      game.actions.selectCategory(cat.id)
+      game.actions.selectLevel(found.level) // selectLevel 이 ?quote= 를 읽어 강제
+    }
+    window.history.replaceState(null, '', window.location.pathname)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 닉네임(+선택 PIN)으로 로그인/등록. NicknamePrompt 의 onSubmit.
   // 반환 계약:
